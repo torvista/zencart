@@ -1,23 +1,27 @@
 <?php //steve
-//PR done for extra closing div removed,  removed <body onload="init();"> duplicated in comments, removed extra div
-//improved layout
-//added onsubmit for product select: no risk
+//PR waiting: for extra closing div removed,  removed <body onload="init();"> duplicated in comments, removed extra div
+//new 2019 09 PR not submitted
+//merge in Conor code for displaying linked categories as full paths, alpha sorted
+//merge in Conor code for Global Tool copy linked categories from one product to another
+//simplified layout and code structure: easier to see blocks when all collapsed
+//removed product price info etc. show after product select list: it was ugly/out of place and all duplicated in the infobox anyway
+//added onsubmit for product select: no risk (noscript button provided)
 //removed onsubmit for master category change...too easy/risky
-//when unlinking categories: if product is unlinked from displayed category, display reverts to master category
-//if invalid category in linking array, skip with error message instead of die
-
+//when unlinking categories: if product is unlinked from the displayed category, display redirects to show product in its master category
+//if invalid category (<=0) found in linking array, skip with error message instead of die
+//infoBox "Select another product by id": removed references to current product as irrelevant
+//language constants: multiple changes of texts for better explanation, changed structure and names of defines to be more logical
+//Product to Category links: removed multiple treatment of master category. Passed master category from form, do not delete from P2C table and so do not re-insert into P2C table.
 $debug_p2c = true;
 $debug_class = ' class="alert-danger"';
 function printArray($a, $t = 'pre')
 {
     echo "<$t>" . print_r($a, 1) . "</$t>";
 }
-
-
 /**steve this stuff for phpstorm inspections
  * @var class $messageStack
  */
-
+///////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @package admin
  * @copyright Copyright 2003-2019 Zen Cart Development Team
@@ -720,7 +724,7 @@ if (zen_not_null($action)) {
             for ($i = 0, $n = count($new_categories_sort_array); $i < $n; $i++) {//contains the selected linked categories
                 // is current master_categories_id in the list?
                 if ($new_categories_sort_array[$i] <= 0) {
-                    $messageStack->add_session(sprintf(ERROR_CATEGORY_ID_INVALID,  $new_categories_sort_array[$i]), 'error');
+                    $messageStack->add_session(sprintf(ERROR_CATEGORY_ID_INVALID, $new_categories_sort_array[$i]), 'error');
                     //die('CANNOT ADD CATEGORY:' . $new_categories_sort_array[$i] . '<br>');
                 } else {
                     if ($current_category_id == $new_categories_sort_array[$i]) {//is the product still linked to the displayed category?
@@ -762,7 +766,7 @@ if (zen_not_null($action)) {
             zen_update_products_price_sorter($products_filter);
 
             //          if ($zv_check_master_categories_id == true) {
-            $messageStack->add_session(SUCCESS_MASTER_CATEGORIES_ID, 'success');
+            $messageStack->add_session(SUCCESS_PRODUCT_LINKED_TO_CATEGORIES, 'success');
             //        } else {
             //    $messageStack->add_session(WARNING_MASTER_CATEGORIES_ID, 'warning');
             //      }
@@ -994,6 +998,10 @@ $products_list = $db->Execute("SELECT products_id, categories_id
             border: 1px solid darkgrey;
         }
 
+        #p2c-table td {
+            /*white-space: nowrap;*/
+        }
+
         .dataTableHeadingRow {
             padding: 0 0 5px 5px;
             border: 1px black solid;
@@ -1107,18 +1115,18 @@ $products_list = $db->Execute("SELECT products_id, categories_id
                     $contents = array();
 
                     switch ($action) {
-                        case 'edit':
-                            $heading[] = array('text' => '<h4>' . TEXT_INFO_HEADING_EDIT_PRODUCTS_TO_CATEGORIES . '</h4>');
-                            $contents = array('form' => zen_draw_form('products_downloads_edit', FILENAME_PRODUCTS_TO_CATEGORIES, '', 'post', 'class="form-horizontal"'));
-                            if ($products_filter > 0) {
+                        case 'edit'://select a different product by ID
+                            $heading[] = array('text' => '<h4>' . TEXT_INFOBOX_HEADING_SELECT_PRODUCT . '</h4>');
+                            $contents = array('form' => zen_draw_form('product_select_by_id', FILENAME_PRODUCTS_TO_CATEGORIES, '', 'post', 'class="form-horizontal"'));
+                            /*if ($products_filter > 0) {
                                 $contents[] = array(
                                     'text' => zen_image(DIR_WS_CATALOG_IMAGES . $product_to_copy->fields['products_image'], $product_to_copy->fields['products_name'], SMALL_IMAGE_WIDTH,
                                         SMALL_IMAGE_HEIGHT)
                                 );
-                            }
-                            $contents[] = array('text' => '<strong>' . TEXT_PRODUCTS_NAME . $product_to_copy->fields['products_name'] . '</strong>');
-                            $contents[] = array('text' => '<strong>' . TEXT_PRODUCTS_MODEL . $product_to_copy->fields['products_model'] . '</strong>');
+                            }*/
                             $contents[] = array('text' => TEXT_SET_PRODUCTS_TO_CATEGORIES_LINKS);
+                            /* $contents[] = array('text' => TEXT_PRODUCTS_NAME . '<strong>' . $product_to_copy->fields['products_name'] . '</strong>');
+                             $contents[] = array('text' => TEXT_PRODUCTS_MODEL . ' <strong>' . $product_to_copy->fields['products_model'] . '</strong>');*/
                             $contents[] = array(
                                 'text' => zen_draw_label(TEXT_PRODUCTS_ID, 'products_filter', 'class="control-label"') . zen_draw_input_field('products_filter', $products_filter,
                                         'class="form-control"')
@@ -1126,8 +1134,7 @@ $products_list = $db->Execute("SELECT products_id, categories_id
 //      $contents[] = array('align' => 'center', 'text' => '<br />' . zen_image_submit('button_update.gif', IMAGE_UPDATE) . '&nbsp;<a href="' . zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id) . '">' . zen_image_button('button_cancel.gif', IMAGE_CANCEL) . '</a>' . '</form>');
                             $contents[] = array(
                                 'align' => 'center',
-                                'text' => '<button type="submit" class="btn btn-primary">' . IMAGE_UPDATE . '</button> <a href="' . zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES,
-                                        'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id) . '" class="btn btn-default" role="button">' . IMAGE_CANCEL . '</a>'
+                                'text' => '<button type="submit" class="btn btn-primary">' . IMAGE_SELECT . '</button> <a href="' . zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id) . '" class="btn btn-default" role="button">' . IMAGE_CANCEL . '</a>'
                             );
                             break;
                         default:
@@ -1298,7 +1305,7 @@ JS_BLOCK;
                 zen_draw_hidden_field('current_master_categories_id', $product_to_copy->fields['master_categories_id']); //steve ?>
                 <?php // END CEON MODIFICATIONS 1.2.0 14 of 28 ?>
 
-                <table class="table-bordered">
+                <table class="table-bordered" id="p2c-table">
                     <thead>
                     <?php // END CEON MODIFICATIONS 1.2.0 14 of 28
                     /*
@@ -1387,7 +1394,7 @@ JS_BLOCK;
                             // BEGIN CEON MODIFICATIONS 1.2.0 21 of 28
                             */
                             echo '  <td class="dataTableContent" title="' . TEXT_VALID_CATEGORIES_ID . ': ' . $categories_list->fields['categories_id'] . '">' . zen_image(DIR_WS_IMAGES . 'icon_green_on.gif',
-                                    TEXT_MASTER_CATEGORIES_ID) . '&nbsp;' . htmlspecialchars($categories_list->fields['categories_name']) . '</td>' . "\n";
+                                    TEXT_MASTER_CATEGORIES_ID . $product_to_copy->fields['master_categories_id']) . '&nbsp;' . htmlspecialchars($categories_list->fields['categories_name']) . '</td>' . "\n";
 // END CEON MODIFICATIONS 1.2.0 21 of 28
 
                         } else {
