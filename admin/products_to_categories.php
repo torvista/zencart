@@ -4,6 +4,7 @@
 //added onsubmit for product select: no risk
 //removed onsubmit for master category change...too easy/risky
 //when unlinking categories: if product is unlinked from displayed category, display reverts to master category
+//if invalid category in linking array, skip with error message instead of die
 
 $debug_p2c = true;
 $debug_class = ' class="alert-danger"';
@@ -452,9 +453,9 @@ if (zen_not_null($action)) {
 //        $cnt_added = 0;
             // check for elements in $remove_links_array that are already in $add_links_array
             $make_links_result = array();
-            for ($i = 0, $n = sizeof($add_links_array); $i < $n; $i++) {
+            for ($i = 0, $n = count($add_links_array); $i < $n; $i++) {
                 $good = 'true';
-                for ($j = 0, $nn = sizeof($remove_links_array); $j < $nn; $j++) {
+                for ($j = 0, $nn = count($remove_links_array); $j < $nn; $j++) {
                     if ($add_links_array[$i]['products_id'] == $remove_links_array[$j]['products_id']) {
                         $good = 'false';
                         break;
@@ -469,7 +470,7 @@ if (zen_not_null($action)) {
                 $messageStack->add_session(sprintf(WARNING_COPY_FROM_IN_TO_LINKED, $copy_from_linked, $copy_to_linked), 'caution');
 
             } else {//do the copy
-                for ($i = 0, $n = sizeof($make_links_result); $i < $n; $i++) {
+                for ($i = 0, $n = count($make_links_result); $i < $n; $i++) {
 //          $cnt_added++;
                     $new_product = $make_links_result[$i]['products_id'];
                     $sql = "INSERT INTO " . TABLE_PRODUCTS_TO_CATEGORIES . " (products_id, categories_id)
@@ -520,15 +521,15 @@ if (zen_not_null($action)) {
             }
 
             $stop_warning = '';
-            if (sizeof($master_categories_id_stop) > 0) {//a product set to be unlinked is in its master category. Create message and abort unlinking.
-                for ($i = 0, $n = sizeof($master_categories_id_stop); $i < $n; $i++) {
+            if (count($master_categories_id_stop) > 0) {//a product set to be unlinked is in its master category. Create message and abort unlinking.
+                for ($i = 0, $n = count($master_categories_id_stop); $i < $n; $i++) {
                     $stop_warning .= TEXT_PRODUCTS_ID . $master_categories_id_stop[$i]['products_id'] . ' - ' . zen_get_products_name($master_categories_id_stop[$i]['products_id']) . '<br />';
                 }
                 $stop_warning_message = sprintf(WARNING_REMOVE_LINKED_PRODUCTS_MASTER_CATEGORIES_ID_CONFLICT, $remove_from_linked, $remove_to_linked, $stop_warning);
 
                 $messageStack->add_session($stop_warning_message, 'warning');
                 zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $master_categories_id_stop[0]['products_id'] . '&current_category_id=' . $current_category_id));
-//          die('THIS IS THE MASTER CATEGORIES ID!! ' . $remove_to_linked . ' - stop: ' . sizeof($master_categories_id_stop) . '<br>');
+//          die('THIS IS THE MASTER CATEGORIES ID!! ' . $remove_to_linked . ' - stop: ' . count($master_categories_id_stop) . '<br>');
             }
 
             // get products already in category to be removed as linked to
@@ -543,9 +544,9 @@ if (zen_not_null($action)) {
 //        $cnt_removed = 0;
             // remove elements in $remove_links_array that are in $add_links_array
             $make_links_result = array();
-            for ($i = 0, $n = sizeof($add_links_array); $i < $n; $i++) {
+            for ($i = 0, $n = count($add_links_array); $i < $n; $i++) {
                 $good = 'false';
-                for ($j = 0, $nn = sizeof($remove_links_array); $j < $nn; $j++) {
+                for ($j = 0, $nn = count($remove_links_array); $j < $nn; $j++) {
                     if ($add_links_array[$i]['products_id'] == $remove_links_array[$j]['products_id']) {
                         $good = 'true';
                         break;
@@ -561,7 +562,7 @@ if (zen_not_null($action)) {
                 $messageStack->add_session(sprintf(WARNING_REMOVE_FROM_IN_TO_LINKED, $remove_to_linked, $remove_from_linked), 'warning');
             } else {
 
-                for ($i = 0, $n = sizeof($make_links_result); $i < $n; $i++) {
+                for ($i = 0, $n = count($make_links_result); $i < $n; $i++) {
 //          $cnt_removed++;
                     $remove_product = $make_links_result[$i]['products_id'];
                     $sql = "DELETE FROM " . TABLE_PRODUCTS_TO_CATEGORIES . "
@@ -660,7 +661,7 @@ if (zen_not_null($action)) {
 // END CEON MODIFICATIONS 1.2.0 3 of 28
 
             // Add the selected linked subcategories to the master category
-            for ($i = 0, $n = sizeof($_POST['categories_add']); $i < $n; $i++) {
+            for ($i = 0, $n = count($_POST['categories_add']); $i < $n; $i++) {
                 $new_categories_sort_array[] = (int)$_POST['categories_add'][$i];
             }
 // BEGIN CEON MODIFICATIONS 1.2.0 4 of 28
@@ -675,7 +676,7 @@ if (zen_not_null($action)) {
 
             ceonGetCategoriesInfo($target_category_id);//$target_category_id is the chosen root category that contains the subcategories to link to. This populates array $categories_info
             //if ($debug_p2c) {echo __LINE__;printArray($categories_info);}
-            $num_target_categories = sizeof($categories_info);
+            $num_target_categories = count($categories_info);
 
             // Make the list of all the possible target subcategories' IDs. At the same time, check if product master category and currently-selected category are in the list of target subcategories
             $target_categories_ids = array();
@@ -687,9 +688,9 @@ if (zen_not_null($action)) {
                 //$target_categories_ids[] = $categories_info[$tc_i]['categories_id'];
                 if ($categories_info[$tc_i]['categories_id'] == $current_master_categories_id) {
                     //$master_category_in_target_categories_list = true;
-                    $master_category_name = $categories_info[$tc_i]['categories_name'];//steve
+                    $master_category_name = $categories_info[$tc_i]['categories_name'];//if the master category id is in the target list, skip it
                 } else {
-                    $target_categories_ids[] = $categories_info[$tc_i]['categories_id'];//omit the master category id if it is in the target list
+                    $target_categories_ids[] = $categories_info[$tc_i]['categories_id'];//load the categories to unlink
                 }
 
                 if ($categories_info[$tc_i]['categories_id'] == $current_category_id) {
@@ -714,15 +715,15 @@ if (zen_not_null($action)) {
 // END CEON MODIFICATIONS 1.2.0 6 of 28
             // $old_master_categories_id = $current_master_categories_id;
             // add products to categories in order of master_categories_id first then others
-            $verify_current_category_id = false;
+            $verify_current_category_id = ($current_category_id == $current_master_categories_id ? true : false);//display product in same category after linking?
 
-            for ($i = 0, $n = sizeof($new_categories_sort_array); $i < $n; $i++) {//contains the master category id and any selected linked categories
+            for ($i = 0, $n = count($new_categories_sort_array); $i < $n; $i++) {//contains the selected linked categories
                 // is current master_categories_id in the list?
                 if ($new_categories_sort_array[$i] <= 0) {
-                    die('I WOULD NOT ADD ' . $new_categories_sort_array[$i] . '<br>');
+                    $messageStack->add_session(sprintf(ERROR_CATEGORY_ID_INVALID,  $new_categories_sort_array[$i]), 'error');
+                    //die('CANNOT ADD CATEGORY:' . $new_categories_sort_array[$i] . '<br>');
                 } else {
-                    //if ($current_category_id == $new_categories_sort_array[$i]) {//is the product still linked to the displayed category?
-                    if (($current_category_id == $new_categories_sort_array[$i]) || $current_category_id == $current_master_categories_id) {//is the product still linked to the displayed category?
+                    if ($current_category_id == $new_categories_sort_array[$i]) {//is the product still linked to the displayed category?
                         $verify_current_category_id = true;
                     }
 
@@ -1268,13 +1269,13 @@ JS_BLOCK;
                         $products_list->MoveNext();
                     }
 
-                    if (sizeof($selected_categories) == 0) {
+                    if (count($selected_categories) == 0) {
                         $all_target_categories_selected = false;
                     } else {
                         // Assign fake value to variable used by Zen Cart in a check later
                         $selected_categories_check = 'yes, use it';
 
-                        $num_target_categories = sizeof($categories_info);
+                        $num_target_categories = count($categories_info);
 
                         for ($cat_i = 0; $cat_i < $num_target_categories; $cat_i++) {
                             if (!in_array($categories_info[$cat_i]['categories_id'], $selected_categories)) {
@@ -1338,7 +1339,7 @@ JS_BLOCK;
                                       while (!$categories_list->EOF) {
                     // BEGIN CEON MODIFICATIONS 1.2.0 17 of 28
                     */
-                    $num_target_categories = sizeof($categories_info);
+                    $num_target_categories = count($categories_info);
                     //if ($debug_p2c) {printArray($categories_info);}
                     for ($cat_i = 0; $cat_i < $num_target_categories; $cat_i++) {
 

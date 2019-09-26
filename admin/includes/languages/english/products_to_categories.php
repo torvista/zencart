@@ -34,10 +34,10 @@ define('TEXT_INFO_PRODUCTS_TO_CATEGORIES_LINKER_INTRO', 'This product is current
 define('TEXT_INFO_MASTER_CATEGORY_CHANGE','A product has a Master Category ID (for pricing purposes) that can be considered as the category where the product actually <i>resides</i>. Additionally, a product can be <i>linked</i> (copied) to any number of other categories, where the price may be modified due to conditions on those linked categories.<br />The Master Category ID can be changed by using this Master Category dropdown, that only offers the <strong>currently linked</strong> categories as possible alternatives.<br />To set the Master Category ID to <strong>another</strong> category, first link it to the new category using the table below, and Update. Then use this dropdown to reassign the master category to the new category.');
 
 define('TEXT_SET_MASTER_CATEGORIES_ID', '<strong>WARNING:</strong> a MASTER CATEGORIES ID must be assigned');
-define('WARNING_PRODUCT_UNLINKED_FROM_CATEGORY', 'The product was unlinked from the previously selected category "%1$s" ID#%2$u, and so is shown in it\'s master category.');
+define('WARNING_PRODUCT_UNLINKED_FROM_CATEGORY', 'The product was unlinked from the previously selected category "%1$s" ID#%2$u, and so is now shown in it\'s master category.');
 
 define('WARNING_PRODUCTS_LINK_TO_CATEGORY_REMOVED', 'WARNING: Product has been reset and is no longer part of this Category...');//when category set, but no product filter set
-
+define('ERROR_CATEGORY_ID_INVALID', 'Linked Category ID#%u invalid (not added).');
 define('SUCCESS_MASTER_CATEGORIES_ID', 'Successful update of Product to Categories Links ...');
 
 define('WARNING_MASTER_CATEGORIES_ID', 'WARNING: No Master Category is set for Product ID#%u!<br />This MUST be corrected immediately.');
