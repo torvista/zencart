@@ -1,7 +1,7 @@
 <?php //steve
 //PR waiting: for extra closing div removed,  removed <body onload="init();"> duplicated in comments, removed extra div
 //new 2019 09 PR not submitted
-//merge in Conor code for displaying linked categories as full paths, alpha sorted
+//merge in Conor code for displaying linked categories as full paths, alpha sorted, All/None selectable, filter by subcategories dropdown
 //merge in Conor code for Global Tool copy linked categories from one product to another
 //simplified layout and code structure: easier to see blocks when all collapsed
 //removed product price info etc. show after product select list: it was ugly/out of place and all duplicated in the infobox anyway
@@ -12,11 +12,14 @@
 //infoBox "Select another product by id": removed references to current product as irrelevant
 //language constants: multiple changes of texts for better explanation, changed structure and names of defines to be more logical
 //Product to Category links: removed multiple treatment of master category. Passed master category from form, do not delete from P2C table and so do not re-insert into P2C table.
+//Product to Category links: removed category ID column for better use of space, now shown on hover.
 $debug_p2c = true;
 $debug_class = ' class="alert-danger"';
-function printArray($a, $t = 'pre')
+if (!function_exists('printArray')) {
+    function printArray($a, $t = 'pre')
 {
     echo "<$t>" . print_r($a, 1) . "</$t>";
+}
 }
 /**steve this stuff for phpstorm inspections
  * @var class $messageStack
@@ -916,7 +919,7 @@ if (zen_not_null($action)) {
     }
 }
 
-$product_to_copy = $db->Execute("SELECT p.products_id, pd.products_name, p.products_price_sorter, p.products_model, p.master_categories_id, p.products_image
+$product_to_copy = $db->Execute("SELECT p.products_id, pd.products_name, p.products_sort_order, p.products_price_sorter, p.products_model, p.master_categories_id, p.products_image
                                  FROM " . TABLE_PRODUCTS . " p,
                                       " . TABLE_PRODUCTS_DESCRIPTION . " pd
                                  WHERE p.products_id = '" . $products_filter . "'
@@ -1018,6 +1021,9 @@ $products_list = $db->Execute("SELECT products_id, categories_id
             font-weight: bold;
             text-align: left !important;
         }
+        .form-control {
+            width:100%;
+        }
     </style>
 </head>
 <body onload="init();">
@@ -1036,12 +1042,11 @@ $products_list = $db->Execute("SELECT products_id, categories_id
         <!-- LEFT column block (prev/next, product select, master category) -->
         <div class="col-sm-9 col-md-9 col-lg-9">
             <h2><?php echo TEXT_HEADING_PRODUCT_SELECT; ?></h2>
-            <!-- prev/next-->
+            <!-- prev-cat-next navigation -->
             <div>
                 <?php require(DIR_WS_MODULES . FILENAME_PREV_NEXT_DISPLAY); ?>
             </div>
-            <!-- prev/next eof -->
-
+            <!-- prev-cat-next navigation eof-->
             <!-- product select -->
             <?php if ($products_filter > 0) {//a product is selected ?>
                 <div>
@@ -1059,7 +1064,7 @@ $products_list = $db->Execute("SELECT products_id, categories_id
                     <?php echo zen_draw_label(TEXT_PRODUCT_TO_VIEW, 'products_filter'); ?>
                     <?php //steve added onchange autosubmit behaviour ?>
                     <?php echo zen_draw_products_pull_down('products_filter', 'size="10" class="form-control" id="products_filter" onchange="this.form.submit()"', $excluded_products, true,
-                        $products_filter, true, true); ?>
+                        $products_filter, true, true, true); ?>
                     <noscript>
                         <br><input type="submit" value="<?php echo IMAGE_DISPLAY; ?>">
                     </noscript>
@@ -1147,6 +1152,7 @@ $products_list = $db->Execute("SELECT products_id, categories_id
                                 );
                                 $contents[] = array('text' => TEXT_PRODUCTS_NAME . $product_to_copy->fields['products_name']);
                                 $contents[] = array('text' => TEXT_PRODUCTS_MODEL . $product_to_copy->fields['products_model']);
+                                $contents[] = array('text' => 'Sort Order: ' . $product_to_copy->fields['products_sort_order']);
                                 $contents[] = array('text' => TEXT_PRODUCTS_PRICE . zen_get_products_display_price($products_filter));
                                 $display_priced_by_attributes = zen_get_products_price_is_priced_by_attributes($products_filter);
                                 $contents[] = array('text' => $display_priced_by_attributes ? '<span class="alert">' . TEXT_PRICED_BY_ATTRIBUTES . '</span>' : '');
@@ -1470,12 +1476,12 @@ JS_BLOCK;
             <div class="form-group-row">
                 <div class="col-lg-4">
                     <?php echo zen_draw_label(TEXT_LABEL_COPY_ALL_PRODUCTS_TO_CATEGORY_FROM_LINKED, 'copy_categories_id_from_linked',
-                            'class="control-label"') . zen_draw_input_field('copy_categories_id_from_linked', '', 'id="copy_categories_id_from_linked" class="form-control" step="1" min="1"', true,
+                            'class="control-label"') . zen_draw_input_field('copy_categories_id_from_linked', '', 'id="copy_categories_id_from_linked" class="form-control" step="1" min="1"', '',
                             'number'); ?>
                 </div>
                 <div class="col-lg-4">
                     <?php echo zen_draw_label(TEXT_LABEL_COPY_ALL_PRODUCTS_TO_CATEGORY_TO_LINKED, 'copy_categories_id_to_linked',
-                            'class="control-label"') . zen_draw_input_field('copy_categories_id_to_linked', '', 'id="copy_categories_id_to_linked" class="form-control" step="1" min="1"', true,
+                            'class="control-label"') . zen_draw_input_field('copy_categories_id_to_linked', '', 'id="copy_categories_id_to_linked" class="form-control" step="1" min="1"', '',
                             'number'); ?>
                 </div>
                 <div class="col-lg-4">
@@ -1498,12 +1504,12 @@ JS_BLOCK;
             <div class="form-group-row">
                 <div class="col-lg-4">
                     <?php echo zen_draw_label(TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_FROM_LINKED, 'remove_categories_id_from_linked',
-                            'class="control-label"') . zen_draw_input_field('remove_categories_id_from_linked', '', 'id="remove_categories_id_from_linked" class="form-control" step="1" min="1"', true,
+                            'class="control-label"') . zen_draw_input_field('remove_categories_id_from_linked', '', 'id="remove_categories_id_from_linked" class="form-control" step="1" min="1"', '',
                             'number'); ?>
                 </div>
                 <div class="col-lg-4">
                     <?php echo zen_draw_label(TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_TO_LINKED, 'remove_categories_id_to_linked',
-                            'class="control-label"') . zen_draw_input_field('remove_categories_id_to_linked', '', 'id="remove_categories_id_to_linked" class="form-control" step="1" min="1"', true,
+                            'class="control-label"') . zen_draw_input_field('remove_categories_id_to_linked', '', 'id="remove_categories_id_to_linked" class="form-control" step="1" min="1"', '',
                             'number'); ?>
                 </div>
                 <div class="col-lg-4">
@@ -1557,7 +1563,7 @@ JS_BLOCK;
             <div class="form-group-row">
                 <div class="col-lg-8">
                     <?php echo zen_draw_label(TEXT_INFO_RESET_ALL_PRODUCTS_TO_CATEGORY_FROM_MASTER, 'reset_categories_id_from_master',
-                            'class="control-label"') . zen_draw_input_field('reset_categories_id_from_master', '', ' id="reset_categories_id_from_master" class="form-control" step="1" min="1"', true,
+                            'class="control-label"') . zen_draw_input_field('reset_categories_id_from_master', '', ' id="reset_categories_id_from_master" class="form-control" step="1" min="1"', '',
                             'number'); ?>
                 </div>
                 <div class="col-lg-4">
