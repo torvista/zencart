@@ -8,6 +8,7 @@
  */
 
 define('HEADING_TITLE','Products to Multiple Categories Link Manager');
+define('HEADING_TITLE2','Categories / Products');//used by prev_next if HEADING_TITLE not defined...so never used!
 
 //Select Product
 define('TEXT_HEADING_PRODUCT_SELECT', 'Select Product');
