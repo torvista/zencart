@@ -13,6 +13,7 @@
 //language constants: multiple changes of texts for better explanation, changed structure and names of defines to be more logical
 //Product to Category links: removed multiple treatment of master category. Passed master category from form, do not delete from P2C table and so do not re-insert into P2C table.
 //Product to Category links: removed category ID column for better use of space, now shown on hover.
+//SQL added LIMIT 1 where possible
 $debug_p2c = true;
 $debug_class = ' class="alert-danger"';
 if (!function_exists('printArray')) {
@@ -37,6 +38,15 @@ require('includes/application_top.php');
 $_GET['products_filter'] = $products_filter = ((isset($_GET['products_filter']) && $_GET['products_filter'] > 0) ? (int)$_GET['products_filter'] : (isset($_POST['products_filter']) ? (int)$_POST['products_filter'] : 0));
 $_GET['current_category_id'] = $current_category_id = (isset($_GET['current_category_id']) ? (int)$_GET['current_category_id'] : (int)$current_category_id);
 
+/*
+TODO/test
+$_GET['products_filter'] = $products_filter = (
+        (isset($_POST['products_filter']) ? (int)$_POST['products_filter'] :
+                        (isset($_GET['products_filter']) && $_GET['products_filter'] > 0 ? (int)$_GET['products_filter'] : '0')));
+steve TODO/reorder
+$_GET['current_category_id'] = $current_category_id = (isset($_GET['current_category_id']) ? (int)$_GET['current_category_id'] : (int)$current_category_id);
+*/
+
 // verify at least one product exists
 $chk_products = $db->Execute("SELECT *
                               FROM " . TABLE_PRODUCTS . "
@@ -50,7 +60,7 @@ if ($chk_products->RecordCount() < 1) {
 if ($products_filter > 0) {
     $chk_products = $db->Execute("SELECT master_categories_id
                               FROM " . TABLE_PRODUCTS . "
-                              WHERE products_id = " . $products_filter);
+                              WHERE products_id = " . $products_filter . " LIMIT 1");
     if (!$chk_products->EOF && $chk_products->fields['master_categories_id'] <= 0) {
         $messageStack->add(ERROR_DEFINE_PRODUCTS_MASTER_CATEGORIES_ID, 'caution');
 //    zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
@@ -574,7 +584,7 @@ if (zen_not_null($action)) {
                     $remove_product = $make_links_result[$i]['products_id'];
                     $sql = "DELETE FROM " . TABLE_PRODUCTS_TO_CATEGORIES . "
                 WHERE products_id = " . $remove_product . "
-                AND categories_id = " . $remove_to_linked;
+                AND categories_id = " . $remove_to_linked . " LIMIT 1";
                     $db->Execute($sql);
                 }
                 $messageStack->add_session(sprintf(SUCCESS_REMOVE_LINKED, $i, $remove_to_linked), 'success');
@@ -619,7 +629,7 @@ if (zen_not_null($action)) {
         case 'set_master_categories_id':
             $db->Execute("UPDATE " . TABLE_PRODUCTS . "
                     SET master_categories_id = " . (int)$_GET['master_category'] . "
-                    WHERE products_id = " . (int)$products_filter);
+                    WHERE products_id = " . (int)$products_filter) . " LIMIT 1" ;
             // reset products_price_sorter for searches etc.
             zen_update_products_price_sorter($products_filter);
 
@@ -637,7 +647,7 @@ if (zen_not_null($action)) {
             if (!empty($_POST['current_master_categories_id'])) {
                 $current_master_categories_id = $_POST['current_master_categories_id'];
             } else {
-                $master_category_id_result = $db->Execute("SELECT master_categories_id FROM " . TABLE_PRODUCTS . " WHERE products_id = '" . $products_filter . "'");
+                $master_category_id_result = $db->Execute("SELECT master_categories_id FROM " . TABLE_PRODUCTS . " WHERE products_id = " . $products_filter . " LIMIT 1");
                 $current_master_categories_id = $master_category_id_result->fields['master_categories_id'];
             }
             //$zv_check_master_categories_id = ('' !== $_POST['current_master_categories_id']);//steve original: triggers php notice when not set
@@ -709,7 +719,7 @@ if (zen_not_null($action)) {
             // 1- Unlink the product from all of the target subcategories. Subsequently below, it will then be (re-)linked into the selected target categories
             $target_categories_ids_string = implode(',', $target_categories_ids);
 //steve TODO better to compare and unlink only those necessary??
-            $db->Execute("DELETE FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = '" . $products_filter . "' AND categories_id IN (" . $target_categories_ids_string . ")");
+            $db->Execute("DELETE FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $products_filter . " AND categories_id IN (" . $target_categories_ids_string . ")");
 
 // END CEON MODIFICATIONS 1.2.0 5 of 28
             // $reset_master_categories_id = '';
@@ -830,7 +840,7 @@ if (zen_not_null($action)) {
             FROM
               " . TABLE_PRODUCTS . "
             WHERE
-              products_id = '" . (int)$products_filter . "';";
+              products_id = " . (int)$products_filter . "LIMIT 1";
 
                 $source_product_master_category_result =
                     $db->Execute($source_product_master_category_sql);
@@ -842,7 +852,7 @@ if (zen_not_null($action)) {
             FROM
               " . TABLE_PRODUCTS . "
             WHERE
-              products_id = '" . (int)$target_product_id . "';";
+              products_id = " . (int)$target_product_id . " LIMIT 1";
 
                 $target_product_master_category_result =
                     $db->Execute($target_product_master_category_sql);
@@ -861,9 +871,9 @@ if (zen_not_null($action)) {
                         "DELETE FROM
                 " . TABLE_PRODUCTS_TO_CATEGORIES . "
               WHERE
-                products_id = '" . (int)$target_product_id . "'
+                products_id = " . (int)$target_product_id . "
               AND
-                categories_id != '" . $target_product_master_categories_id . "';");
+                categories_id != " . $target_product_master_categories_id . " LIMIT 1");
 
                     // Copy across the current product's list of categories
                     $product_categories_result = $db->Execute(
@@ -872,7 +882,7 @@ if (zen_not_null($action)) {
               FROM
                 " . TABLE_PRODUCTS_TO_CATEGORIES . "
               WHERE
-                products_id = '" . (int)$products_filter . "';");
+                products_id = " . (int)$products_filter);
 
                     while (!$product_categories_result->EOF) {
                         $category_id = $product_categories_result->fields['categories_id'];
@@ -890,8 +900,8 @@ if (zen_not_null($action)) {
                     )
                   VALUES
                     (
-                    '" . (int)$target_product_id . "',
-                    '" . $category_id . "'
+                    " . (int)$target_product_id . ",
+                    " . $category_id . "
                     );");
                         }
 
@@ -906,7 +916,7 @@ if (zen_not_null($action)) {
               WHERE
                 products_id = '" . (int)$target_product_id . "'
               AND
-                language_id = '" . (int)$_SESSION['languages_id'] . "';";
+                language_id = " . (int)$_SESSION['languages_id'] . " LIMIT 1";
 
                     $target_product_name_result = $db->Execute($target_product_name_sql);
 
@@ -918,14 +928,14 @@ if (zen_not_null($action)) {
 // END CEON MODIFICATIONS 1.2.0 9 of 28
     }
 }
-
+if ($products_filter > 0) {
 $product_to_copy = $db->Execute("SELECT p.products_id, pd.products_name, p.products_sort_order, p.products_price_sorter, p.products_model, p.master_categories_id, p.products_image
                                  FROM " . TABLE_PRODUCTS . " p,
                                       " . TABLE_PRODUCTS_DESCRIPTION . " pd
-                                 WHERE p.products_id = '" . $products_filter . "'
+                                 WHERE p.products_id = " . $products_filter . "
                                  AND p.products_id = pd.products_id
-                                 AND pd.language_id = " . (int)$_SESSION['languages_id']);
-
+                                 AND pd.language_id = " . (int)$_SESSION['languages_id'] . " LIMIT 1");
+}
 // BEGIN CEON MODIFICATIONS 1.2.0 10 of 28
 /*
 // END CEON MODIFICATIONS 1.2.0 10 of 28
