@@ -14,6 +14,7 @@
 //Product to Category links: removed multiple treatment of master category. Passed master category from form, do not delete from P2C table and so do not re-insert into P2C table.
 //Product to Category links: removed category ID column for better use of space, now shown on hover.
 //SQL added LIMIT 1 where possible
+//added parameters to htmlspecialchars
 $debug_p2c = true;
 $debug_class = ' class="alert-danger"';
 if (!function_exists('printArray')) {
@@ -23,7 +24,7 @@ if (!function_exists('printArray')) {
 }
 }
 /**steve this stuff for phpstorm inspections
- * @var class $messageStack
+ * @var $messageStack
  */
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -35,17 +36,13 @@ if (!function_exists('printArray')) {
  */
 require('includes/application_top.php');
 
-$_GET['products_filter'] = $products_filter = ((isset($_GET['products_filter']) && $_GET['products_filter'] > 0) ? (int)$_GET['products_filter'] : (isset($_POST['products_filter']) ? (int)$_POST['products_filter'] : 0));
-$_GET['current_category_id'] = $current_category_id = (isset($_GET['current_category_id']) ? (int)$_GET['current_category_id'] : (int)$current_category_id);
+//$_GET['products_filter'] = $products_filter = ((isset($_GET['products_filter']) && $_GET['products_filter'] > 0) ? (int)$_GET['products_filter'] : (isset($_POST['products_filter']) ? (int)$_POST['products_filter'] : 0));
 
-/*
-TODO/test
 $_GET['products_filter'] = $products_filter = (
-        (isset($_POST['products_filter']) ? (int)$_POST['products_filter'] :
-                        (isset($_GET['products_filter']) && $_GET['products_filter'] > 0 ? (int)$_GET['products_filter'] : '0')));
-steve TODO/reorder
+(isset($_POST['products_filter']) ? (int)$_POST['products_filter'] :
+    (isset($_GET['products_filter']) && $_GET['products_filter'] > 0 ? (int)$_GET['products_filter'] : '0')));
+
 $_GET['current_category_id'] = $current_category_id = (isset($_GET['current_category_id']) ? (int)$_GET['current_category_id'] : (int)$current_category_id);
-*/
 
 // verify at least one product exists
 $chk_products = $db->Execute("SELECT *
@@ -1410,7 +1407,7 @@ JS_BLOCK;
                             // BEGIN CEON MODIFICATIONS 1.2.0 21 of 28
                             */
                             echo '  <td class="dataTableContent" title="' . TEXT_VALID_CATEGORIES_ID . ': ' . $categories_list->fields['categories_id'] . '">' . zen_image(DIR_WS_IMAGES . 'icon_green_on.gif',
-                                    TEXT_MASTER_CATEGORIES_ID . $product_to_copy->fields['master_categories_id']) . '&nbsp;' . htmlspecialchars($categories_list->fields['categories_name']) . '</td>' . "\n";
+                                    TEXT_MASTER_CATEGORIES_ID . $product_to_copy->fields['master_categories_id']) . '&nbsp;' . htmlspecialchars($categories_list->fields['categories_name'],ENT_COMPAT, CHARSET) . '</td>' . "\n";
 // END CEON MODIFICATIONS 1.2.0 21 of 28
 
                         } else {
@@ -1422,7 +1419,7 @@ JS_BLOCK;
                                                   <?php
                             // BEGIN CEON MODIFICATIONS 1.2.0 23 of 28
                             */
-                            echo '  <td class="dataTableContent">' . $zc_categories_checkbox . ' <label class="labelForCheck" title="' . TEXT_VALID_CATEGORIES_ID . ': ' . $categories_list->fields['categories_id'] . '">' . htmlspecialchars($categories_list->fields['categories_name']) . '</label></td>' . "\n";
+                            echo '  <td class="dataTableContent">' . $zc_categories_checkbox . ' <label class="labelForCheck" title="' . TEXT_VALID_CATEGORIES_ID . ': ' . $categories_list->fields['categories_id'] . '">' . htmlspecialchars($categories_list->fields['categories_name'], ENT_COMPAT, CHARSET) . '</label></td>' . "\n";
 // END CEON MODIFICATIONS 1.2.0 23 of 28
                         }
 // BEGIN CEON MODIFICATIONS 1.2.0 24 of 28
