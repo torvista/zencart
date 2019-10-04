@@ -12,7 +12,7 @@ define('HEADING_TITLE2','Categories / Products');//used by prev_next if HEADING_
 
 //Select Product
 define('TEXT_HEADING_PRODUCT_SELECT', 'Select Product');
-define('WARNING_PRODUCTS_LINK_TO_CATEGORY_REMOVED', 'WARNING: The previously-selected product is no longer linked into this category.');//when category set, but no product filter set/no product selected
+define('WARNING_PRODUCTS_LINK_TO_CATEGORY_REMOVED', 'WARNING: The previously-selected product is no longer linked into this category.');//when category is set, but no product filter set (no product selected)
 
 // Change Master Category
 define('TEXT_PRODUCTS_ID_INVALID', 'WARNING: Product ID#%u is invalid/does not exist in the database.');
@@ -36,7 +36,7 @@ define('TEXT_INFO_PRODUCTS_TO_CATEGORIES_LINKER_INTRO', 'This product is current
 define('TEXT_LABEL_CATEGORY_DISPLAY_ROOT', 'Display the SubCategories under:');
 define('TEXT_LABEL_SELECT_ALL_OR_NONE', 'Select All or None');
 define('ERROR_CATEGORY_ID_INVALID', 'Linked Category ID#%u invalid (not added).');
-define('SUCCESS_PRODUCT_LINKED_TO_CATEGORIES', 'Product to Categories Links updated successfully.');
+define('SUCCESS_PRODUCT_LINKED_TO_CATEGORIES', 'Product to Categories Links updated successfully for product ID#%s');
 define('WARNING_PRODUCT_UNLINKED_FROM_CATEGORY', 'The product was unlinked from the previously selected category "%1$s" ID#%2$u, and so is now shown in it\'s master category.');
 
 // Global Tools
@@ -45,22 +45,22 @@ define('TEXT_PRODUCTS_ID_NOT_REQUIRED', 'Note: A Product does not need to be sel
 
 // Copy All Products from category source to category target as linked
 define('TEXT_HEADING_COPY_ALL_PRODUCTS_TO_CATEGORY_LINKED', 'Link (copy) Products from one Category to another Category');
-define('TEXT_INFO_COPY_ALL_PRODUCTS_TO_CATEGORY_LINKED', 'Example: a Copy from SOURCE Category ID#8 to TARGET Category ID#22 will create linked copies of ALL the products that are in Category 8, into Category 22.');
-define('TEXT_LABEL_COPY_ALL_PRODUCTS_TO_CATEGORY_FROM_LINKED', 'Select ALL products from the SOURCE Category ID#: ');
-define('TEXT_LABEL_COPY_ALL_PRODUCTS_TO_CATEGORY_TO_LINKED', 'Link (copy) to the TARGET Category ID#: ');
+define('TEXT_INFO_COPY_ALL_PRODUCTS_TO_CATEGORY_LINKED', 'Example: a Copy from Source Category ID#8 to Target Category ID#22 will create linked copies of ALL the products that are in Category 8, in Category 22.');
+define('TEXT_LABEL_COPY_ALL_PRODUCTS_TO_CATEGORY_FROM_LINKED', 'Select ALL products from the Source Category ID#: ');
+define('TEXT_LABEL_COPY_ALL_PRODUCTS_TO_CATEGORY_TO_LINKED', 'Link (copy) to the Target Category ID#: ');
 define('BUTTON_COPY_CATEGORY_LINKED', 'Copy Products as Linked');
-define('WARNING_CATEGORY_SOURCE_NOT_EXIST','<strong>SOURCE</strong> Category ID#%u invalid (does not exist)');
-define('WARNING_CATEGORY_TARGET_NOT_EXIST','<strong>TARGET</strong> Category ID#%u invalid (does not exist)');
+define('WARNING_CATEGORY_SOURCE_NOT_EXIST','<strong>Source</strong> Category ID#%u invalid (does not exist)');
+define('WARNING_CATEGORY_TARGET_NOT_EXIST','<strong>Target</strong> Category ID#%u invalid (does not exist)');
 define('WARNING_CATEGORY_IDS_DUPLICATED', 'Warning: same Category IDs (#%u)');
-define('WARNING_CATEGORY_NO_PRODUCTS', '<strong>SOURCE</strong> Category ID#%u invalid (contains no products)');
-define('WARNING_CATEGORY_SUBCATEGORIES', '<strong>TARGET</strong> Category ID#%u invalid (contains subcategories)');
+define('WARNING_CATEGORY_NO_PRODUCTS', '<strong>Source</strong> Category ID#%u invalid (contains no products)');
+define('WARNING_CATEGORY_SUBCATEGORIES', '<strong>Target</strong> Category ID#%u invalid (contains subcategories)');
 define('WARNING_NO_CATEGORIES_ID', 'Warning: no categories were selected ... no changes were made');
-define('SUCCESS_COPY_LINKED', '%1$u product(s) copied (linked), from SOURCE Category ID#%2$u to TARGET Category ID#%3$u');
+define('SUCCESS_COPY_LINKED', '%1$u product(s) copied (linked), from Source Category ID#%2$u to Target Category ID#%3$u');
 define('WARNING_COPY_FROM_IN_TO_LINKED', 'WARNING: No products copied (all products in Category ID#%1$u are already linked into Category ID#%2$u)');
 
 // Remove Products in reference category from linked category
 define('TEXT_HEADING_REMOVE_ALL_PRODUCTS_FROM_CATEGORY_LINKED', 'Remove Linked Products from a Category');
-define('TEXT_INFO_REMOVE_ALL_PRODUCTS_TO_CATEGORY_LINKED', 'Example: Using Reference Category #8 and Target Category #22 will remove any linked products from the target Category #22 that exist in the reference Category #8. No product in target Category #22 can have a master category ID of #22 (if so, it must be reassigned to another category).');
+define('TEXT_INFO_REMOVE_ALL_PRODUCTS_TO_CATEGORY_LINKED', 'Example: Using Reference Category #8 and Target Category #22 will remove any linked products from the Target Category #22 that exist in the Reference Category #8. No product in Target Category #22 can have a master category ID of #22 (if so, it must be reassigned to another category).');//TODO check this second paragraph
 define('TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_FROM_LINKED', 'Select ALL Products in the Reference Category: ');
 define('TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_TO_LINKED', 'Remove Any Linked Products from the Target Category: ');
 define('BUTTON_REMOVE_CATEGORY_LINKED', 'Remove Linked Products');
@@ -70,11 +70,15 @@ define('WARNING_REMOVE_LINKED_PRODUCTS_MASTER_CATEGORIES_ID_CONFLICT', '<strong>
 
 // Copy Linked Categories from one product to another
 define('TEXT_HEADING_COPY_LINKED_CATEGORIES', 'Copy Linked Categories to Another Product');
-define('TEXT_INFO_COPY_LINKED_CATEGORIES', 'Copy the linked categories (but not the master category) of the <strong>currently selected product</strong> to another product.');
-define('TEXT_OPTION_LINKED_CATEGORIES', 'Select the target product');
-define('BUTTON_COPY_LINKED_CATEGORIES', 'Copy linked categories');
-define('SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT', 'The list of linked categories has been copied to the target product: %s');
-define('WARNING_COPY_LINKED_CATEGORIES', 'A target product was not selected!');
+define('TEXT_INFO_COPY_LINKED_CATEGORIES', 'Copy the linked categories of the <strong>currently selected product</strong> to another product.<br />You may <strong>Add</strong> this product\'s linked categories to the Target Product, or you may <strong>Replace</strong> (delete+add) the Target product\'s linked categories.<br />Note: This action does not copy the master category of the source product as a linked category for the target category, it only copies the linked categories.');
+define('TEXT_OPTION_LINKED_CATEGORIES', 'Select the Target Product');
+define('BUTTON_COPY_LINKED_CATEGORIES_ADD', 'Copy-Add Linked Categories');
+define('BUTTON_COPY_LINKED_CATEGORIES_REPLACE', 'Copy-Replace Linked Categories');
+define('SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT_ADD', 'Linked Categories (%1$u) have been added:<br />FROM Reference Product ID#%2$s<br />TO Target Product ID#%3$s');
+define('SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT_REPLACE', 'Linked Categories (%1$u) for Target Product ID#%3$s have been replaced by the Linked Categories of Product ID#%2$s');
+define('WARNING_COPY_LINKED_CATEGORIES_NO_TARGET', 'A target product was not selected!');
+define('WARNING_COPY_LINKED_CATEGORIES_NO_ADDITIONAL', 'Nothing to do!<br />Source Product ID#%1$s has no additional linked categories to copy to Target Product ID#%2$s');
+define('ERROR_MASTER_CATEGORY_MISSING', 'ERROR: Master Category ID missing from table ' . TABLE_PRODUCTS_TO_CATEGORIES . '<br />Product ID#%s');
 
 // Set Master Categories ID  for all products in a category
 define('TEXT_HEADING_RESET_ALL_PRODUCTS_TO_CATEGORY_MASTER', 'Reset the Master Category ID for ALL Products in a Category');
@@ -85,7 +89,7 @@ define('SUCCESS_RESET_ALL_PRODUCTS_TO_CATEGORY_FROM_MASTER', 'All products in Ca
 define('TEXT_CATEGORIES_NAME', 'Categories Name');
 
 //unused constants
-//define('HEADING_TITLE2','Categories / Products');
+
 //define('TABLE_HEADING_ACTION', 'Action');
 //define('TEXT_INFO_PRODUCTS_TO_CATEGORIES_AVAILABLE', 'Categories with Products that are Available for Linking ...');
 //define('TABLE_HEADING_PRODUCTS_ID', 'Prod ID');
