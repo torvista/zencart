@@ -18,6 +18,7 @@
 //replace whiles with foreach
 //review case: copy linked categories
 //simplified SQL for new_cat
+//review of Global Tools: removal of linked products
 $debug_p2c = true;
 $debug_class = ' class="alert-danger"';
 if (!function_exists('printArray')) {
@@ -56,8 +57,8 @@ if ($chk_products->RecordCount() < 1) {
 
 // Verify that product has a master_categories_id
 if ($products_filter > 0) {
-    $source_product_details = $products_filter . ' "' . zen_get_products_name($products_filter,
-            (int)$_SESSION['languages_id']) . '" (' . zen_get_products_model($products_filter) . ')'; // Used for various messageStack
+    $source_product_details = '<strong>' . $products_filter . ' "' . zen_get_products_name($products_filter,
+            (int)$_SESSION['languages_id']) . '" (' . zen_get_products_model($products_filter) . ')</strong>'; // Used for various messageStack
     $chk_products = $db->Execute("SELECT master_categories_id
                               FROM " . TABLE_PRODUCTS . "
                               WHERE products_id = " . $products_filter . " LIMIT 1");
@@ -87,15 +88,6 @@ if ($action == 'new_cat') {//this form action is from products_previous_next_dis
 
 // set categories and products if not set
 if ($products_filter == '' && !empty($current_category_id)) { // when prev-next has been changed to a category without products/with subcategories
-    echo __LINE__.'<br>';//debug
-    /*no need for this
-     * $new_product_query = $db->Execute("SELECT ptc.*
-                                     FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " ptc
-                                     LEFT JOIN " . TABLE_PRODUCTS_DESCRIPTION . " pd ON ptc.products_id = pd.products_id
-                                       AND pd.language_id = " . (int)$_SESSION['languages_id'] . "
-                                     WHERE ptc.categories_id = " . $current_category_id . "
-                                     ORDER BY pd.products_name");
-     */
     $new_product_query = $db->Execute("SELECT ptc.products_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " ptc WHERE ptc.categories_id = " . $current_category_id . " LIMIT 1");
     $products_filter = (!$new_product_query->EOF) ? $new_product_query->fields['products_id'] : ''; // Empty if category has no products/has subcategories
     if ($products_filter != '') {
@@ -104,16 +96,8 @@ if ($products_filter == '' && !empty($current_category_id)) { // when prev-next 
     }
 
 } elseif ($products_filter == '' && empty($current_category_id)) {// on first entry into page from Admin menu
-        echo __LINE__.'<br>';//debug
         $reset_categories_id = zen_get_category_tree('', '', '0', '', '', true);
         $current_category_id = $reset_categories_id[0]['id'];
- /*       $new_product_query = $db->Execute("SELECT ptc.*
-                                       FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " ptc
-                                       LEFT JOIN " . TABLE_PRODUCTS_DESCRIPTION . " pd ON ptc.products_id = pd.products_id
-                                         AND pd.language_id = " . (int)$_SESSION['languages_id'] . "
-                                       WHERE ptc.categories_id = " . $current_category_id . "
-                                       ORDER BY pd.products_name");
- */
         $new_product_query = $db->Execute("SELECT ptc.products_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " ptc WHERE ptc.categories_id = " . $current_category_id . " LIMIT 1");
         $products_filter = (!$new_product_query->EOF) ? $new_product_query->fields['products_id'] : '';// Empty if category has no products/has subcategories
         $_GET['products_filter'] = $products_filter;
@@ -124,30 +108,26 @@ require(DIR_WS_MODULES . FILENAME_PREV_NEXT);
 /**
  * validate the user-entered categories from the Global Tools
  */
-function zen_validate_categories($ref_category_id, $target_category_id = '', $reset_mc = false)
+function zen_validate_categories($ref_category_id, $target_category_id = '', $reset_master_category = false)
 {
     global $db, $messageStack;
 
     $categories_valid = true;
-
     if ($ref_category_id == '' || zen_get_categories_status($ref_category_id) == '') {//REF does not exist
         $categories_valid = false;
         $messageStack->add_session(sprintf(WARNING_CATEGORY_SOURCE_NOT_EXIST, $ref_category_id), 'warning');
     }
-    if (!$reset_mc && ($target_category_id == '' || zen_get_categories_status($target_category_id) == '')) {//TARGET does not exist
+    if (!$reset_master_category && ($target_category_id == '' || zen_get_categories_status($target_category_id) == '')) {//TARGET does not exist
         $categories_valid = false;
         $messageStack->add_session(sprintf(WARNING_CATEGORY_TARGET_NOT_EXIST, $target_category_id), 'warning');
     }
-    if (!$reset_mc && ($categories_valid && $ref_category_id == $target_category_id)) {//category IDs are the same
+    if (!$reset_master_category && ($categories_valid && $ref_category_id == $target_category_id)) {//category IDs are the same
         $categories_valid = false;
         $messageStack->add_session(sprintf(WARNING_CATEGORY_IDS_DUPLICATED, $ref_category_id), 'warning');
     }
 
     if ($categories_valid) {
-        $check_category_from = $db->Execute("SELECT products_id
-                                           FROM " . TABLE_PRODUCTS_TO_CATEGORIES . "
-                                           WHERE categories_id = " . $ref_category_id . "
-                                           LIMIT 1");
+        $check_category_from = $db->Execute("SELECT products_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE categories_id = " . $ref_category_id . " LIMIT 1");
 
         // check if REF has any products
         if ($check_category_from->RecordCount() < 1) {//there are no products in the FROM category: invalid
@@ -155,7 +135,7 @@ function zen_validate_categories($ref_category_id, $target_category_id = '', $re
             $messageStack->add_session(sprintf(WARNING_CATEGORY_NO_PRODUCTS, $ref_category_id), 'warning');
         }
         // check that TARGET has no subcategories
-        if (!$reset_mc && zen_childs_in_category_count($target_category_id) > 0) {//subcategories exist in the TO category: invalid
+        if (!$reset_master_category && zen_childs_in_category_count($target_category_id) > 0) {//subcategories exist in the TO category: invalid
             $categories_valid = false;
             $messageStack->add_session(sprintf(WARNING_CATEGORY_SUBCATEGORIES, $target_category_id), 'warning');
         }
@@ -167,18 +147,13 @@ function zen_validate_categories($ref_category_id, $target_category_id = '', $re
 // BEGIN CEON MODIFICATIONS 1.2.0 1 of 28
 
 // Default to top category
-//$target_category_id = '3';//steve set starting category
-
 if (isset($_POST['target_category_id'])) {
     $target_category_id = $_POST['target_category_id'];
-} else {
-    if (isset($_GET['target_category_id'])) {
+} elseif (isset($_GET['target_category_id'])) {
         $target_category_id = $_GET['target_category_id'];
     } else {
         $target_category_id = '0';
     }
-}//steve added
-
 
 // {{{ CeonCategoriesInfo()
 
@@ -439,13 +414,8 @@ function ceonGetTargetCategoryProductList($parent_id = '0', $spacing = '', $cate
 if (zen_not_null($action)) {
     switch ($action) {
 
-        //choose a product to display
-        case 'set_products_filter':
-            zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $_GET['products_filter'] . '&current_category_id=' . $_POST['current_category_id']));
-            break;
-
-        //copy products in FROM category as linked products in TO category
-        case 'copy_categories_products_to_another_category_linked':
+        // Global Tools: Copy products in FROM category as linked products in TO category
+        case 'copy_a_categories_products_to_another_category_linked':
             $copy_from_linked = (int)$_POST['copy_categories_id_from_linked'];
             $copy_to_linked = (int)$_POST['copy_categories_id_to_linked'];
 
@@ -453,10 +423,9 @@ if (zen_not_null($action)) {
                 zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
             }
 
-            ///////////////////////////////////////////////////////////////
             // if either category was invalid nothing processes below
-            ///////////////////////////////////////////////////////////////
-            // get products to be linked from
+
+            // get products to be linked FROM
             $products_to_categories_from_linked = $db->Execute("SELECT products_id
                                                           FROM " . TABLE_PRODUCTS_TO_CATEGORIES . "
                                                           WHERE categories_id = " . $copy_from_linked);
@@ -465,7 +434,7 @@ if (zen_not_null($action)) {
                 $add_links_array[] = array('products_id' => $item['products_id']);
             }
 
-            // get products already in category to be linked to
+            // get products already in category to be linked TO
             $products_to_categories_to_linked = $db->Execute("SELECT products_id
                                                         FROM " . TABLE_PRODUCTS_TO_CATEGORIES . "
                                                         WHERE categories_id = " . $copy_to_linked);
@@ -509,99 +478,175 @@ if (zen_not_null($action)) {
             zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
             break;
 
-        //remove products from TO category that are linked from FROM category
-        case 'remove_categories_products_to_another_category_linked':
+        // Global Tools: Copy Linked categories from this product to another
+        case 'copy_linked_categories_to_another_product':
+            $copy_categories_type = !empty($_POST['type']) && $_POST['type'] != 'replace' ? 'add' : 'replace';
+            $target_product_id = (int)$_POST['target_product_id'];
 
-            $remove_from_linked = (int)$_POST['remove_categories_id_from_linked'];
-            $remove_to_linked = (int)$_POST['remove_categories_id_to_linked'];
+            if ($target_product_id == '') {
+                $messageStack->add(WARNING_COPY_LINKED_CATEGORIES_NO_TARGET, 'error');
+            } else {
+                $target_product_details = '<strong>' . $target_product_id . ' "' . zen_get_products_name($target_product_id,
+                        (int)$_SESSION['languages_id']) . '" (' . zen_get_products_model($target_product_id) . ')</strong>'; // Used in messageStack
 
-            if (!zen_validate_categories($remove_from_linked, $remove_to_linked)) {
+                // Get the master category for the source product
+                $source_product_master_category_sql = "SELECT master_categories_id FROM " . TABLE_PRODUCTS . " WHERE products_id = " . $products_filter . " LIMIT 1";
+                $source_product_master_category_result = $db->Execute($source_product_master_category_sql);
+
+                // Get the master category for the target product
+                $target_product_master_category_sql = "SELECT master_categories_id FROM " . TABLE_PRODUCTS . " WHERE products_id = " . $target_product_id . " LIMIT 1";
+                $target_product_master_category_result = $db->Execute($target_product_master_category_sql);
+
+                if (!$source_product_master_category_result->EOF && !$target_product_master_category_result->EOF) {
+                    $source_product_master_categories_id = $source_product_master_category_result->fields['master_categories_id'];
+                    $target_product_master_categories_id = $target_product_master_category_result->fields['master_categories_id'];
+
+                    // Get the current product's linked categories
+                    $product_categories_result = $db->Execute("SELECT categories_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $products_filter . " 
+                    AND categories_id != " . $source_product_master_categories_id . " 
+                    AND categories_id != " . $target_product_master_categories_id);
+
+                    // Get the target product's linked categories
+                    $target_categories_result = $db->Execute("SELECT categories_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $target_product_id . " 
+                    AND categories_id !=" . $target_product_master_categories_id . " 
+                    AND categories_id !=" . $source_product_master_categories_id
+                    );
+
+                    $product_categories = array();
+                    foreach ($product_categories_result as $row) {
+                        $product_categories[] = $row['categories_id'];
+                    }
+                    //echo __LINE__ . ': $product_categories)<br>';printArray($product_categories);//debug
+
+                    $target_categories = array();
+                    foreach ($target_categories_result as $row) {
+                        $target_categories[] = $row['categories_id'];
+                    }
+                    //echo __LINE__ . ': $target_categories)<br>';printArray($target_categories);//debug
+
+                    $target_categories_update = array();
+                    switch ($copy_categories_type) {
+                        case 'add':
+                            foreach ($product_categories as $id) {
+                                if (!in_array($id, $target_categories)) { // Include only NEW linked categories from source product
+                                    $target_categories_update[] = $id;
+                                }
+                            }
+                            break;
+
+                        case 'replace':
+                            $db->Execute("DELETE FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $target_product_id . " AND categories_id != " . $target_product_master_categories_id);
+                            $target_categories_update = $product_categories;
+                            break;
+                    }
+
+                    if (sizeof($target_categories_update) < 1) {// No new categories to add
+                        $messageStack->add(sprintf(WARNING_COPY_LINKED_CATEGORIES_NO_ADDITIONAL, $source_product_details, $target_product_details), 'warning');
+                        break;
+                    }
+
+                    foreach ($target_categories_update as $target_category) {
+                        $db->Execute("INSERT INTO " . TABLE_PRODUCTS_TO_CATEGORIES . " (products_id, categories_id) VALUES (" . $target_product_id . ", " . $target_category . ")");
+                    }
+
+                    $target_product_name_sql = "SELECT products_name FROM " . TABLE_PRODUCTS_DESCRIPTION . " WHERE products_id = '" . $target_product_id . "' AND language_id = " . (int)$_SESSION['languages_id'] . " LIMIT 1";
+                    $target_product_name_result = $db->Execute($target_product_name_sql);
+
+                    $messageStack->add(sprintf(($copy_categories_type == 'add' ? SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT_ADD : SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT_REPLACE),
+                        sizeof($target_categories_update), $source_product_details, $target_product_details), 'success');
+
+                } else { //source/target is missing a master category
+                    if ($source_product_master_category_result->EOF) {
+                        $messageStack->add(sprintf(ERROR_MASTER_CATEGORY_MISSING, $source_product_details));
+                    }
+                    if ($target_product_master_category_result->EOF) {
+                        $messageStack->add(sprintf(ERROR_MASTER_CATEGORY_MISSING, $target_product_details));
+                    }
+                }
+            }
+            break;
+
+        // Global Tools: Remove products from TO category that are linked from FROM category
+        case 'remove_linked_products':
+
+            $category_id_reference = (int)$_POST['category_id_reference'];
+            $category_id_target = (int)$_POST['category_id_target'];
+
+            if (!zen_validate_categories($category_id_reference, $category_id_target)) {
                 zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
             }
+           // if either category was invalid nothing processes below
 
-            ///////////////////////////////////////////////////////////////
-            // if either category was invalid nothing processes below
-            ///////////////////////////////////////////////////////////////
             // get products to be removed as added linked from
-            $products_to_categories_from_linked = $db->Execute("SELECT ptoc.products_id, p.master_categories_id
+            $products_to_categories_reference_linked = $db->Execute("SELECT ptoc.products_id, p.master_categories_id
                                                           FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " ptoc
                                                           LEFT JOIN " . TABLE_PRODUCTS . " p ON ptoc.products_id = p.products_id
-                                                          WHERE ptoc.categories_id = " . $remove_from_linked);
-
-            $add_links_array = array();
+                                                          WHERE ptoc.categories_id = " . $category_id_reference);
+            $reference_links_array = array();
             $master_categories_id_stop = array();
-            foreach ($products_to_categories_from_linked as $item) {
-                if ($item['master_categories_id'] == $remove_to_linked) {//check if a linked product in the target category has the same master category: do not unlink
-                    //die('THIS IS THE MASTER CATEGORIES ID!! ' . $remove_to_linked . '<br>');
-                    //break;
+            foreach ($products_to_categories_reference_linked as $item) {
+                if ($item['master_categories_id'] == $category_id_target) { // if a product to be removed has the same master category id as the target category: do NOT remove
                     $master_categories_id_stop[] = array(
                         'products_id' => $item['products_id'],
                         'master_categories_id' => $item['master_categories_id']
                     );
                 }
-                $add_links_array[] = array(
+                $reference_links_array[] = array(
                     'products_id' => $item['products_id'],
                     'master_categories_id' => $item['master_categories_id']
                 );
             }
 
-            $stop_warning = '';
+            $stop_warning_ = '';
             if (count($master_categories_id_stop) > 0) {//a product set to be unlinked is in its master category. Create message and abort unlinking.
                 for ($i = 0, $n = count($master_categories_id_stop); $i < $n; $i++) {
-                    $stop_warning .= TEXT_PRODUCTS_ID . $master_categories_id_stop[$i]['products_id'] . ' - ' . zen_get_products_name($master_categories_id_stop[$i]['products_id']) . '<br />';
-                }
-                $stop_warning_message = sprintf(WARNING_REMOVE_LINKED_PRODUCTS_MASTER_CATEGORIES_ID_CONFLICT, $remove_from_linked, $remove_to_linked, $stop_warning);
-
-                $messageStack->add_session($stop_warning_message, 'warning');
+                    $stop_warning .= sprintf(WARNING_PRODUCT_MASTER_CATEGORY_IN_TARGET, $master_categories_id_stop[$i]['products_id'], zen_get_products_name($master_categories_id_stop[$i]['products_id'], (int)$_SESSION['languages_id']), zen_get_products_model($master_categories_id_stop[$i]['products_id']), $category_id_target);
+                    }
+                $stop_warning .= sprintf(WARNING_REMOVE_LINKED_PRODUCTS_MASTER_CATEGORIES_ID_CONFLICT, $category_id_reference, $category_id_target);
+                $messageStack->add_session($stop_warning, 'warning');
                 zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $master_categories_id_stop[0]['products_id'] . '&current_category_id=' . $current_category_id));
-//          die('THIS IS THE MASTER CATEGORIES ID!! ' . $remove_to_linked . ' - stop: ' . count($master_categories_id_stop) . '<br>');
             }
 
-            // get products already in category to be removed as linked to
-            $products_to_categories_to_linked = $db->Execute("SELECT products_id
-                                                        FROM " . TABLE_PRODUCTS_TO_CATEGORIES . "
-                                                        WHERE categories_id = " . $remove_to_linked);
-            $remove_links_array = array();
-            foreach ($products_to_categories_to_linked as $item) {
-                $remove_links_array[] = array('products_id' => $item['products_id']);
+            // get products in target category
+            $products_to_categories_target_linked = $db->Execute("SELECT products_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE categories_id = " . $category_id_target);
+            $target_links_array = array();
+            foreach ($products_to_categories_target_linked as $item) {
+                $target_links_array[] = array('products_id' => $item['products_id']);
             }
-
-//        $cnt_removed = 0;
-            // remove elements in $remove_links_array that are in $add_links_array
-            $make_links_result = array();
-            for ($i = 0, $n = count($add_links_array); $i < $n; $i++) {
+            
+            // remove elements from $target_links_array that are in $reference_links_array
+            $products_to_remove = array();
+            for ($i = 0, $n = count($reference_links_array); $i < $n; $i++) {
                 $good = 'false';
-                for ($j = 0, $nn = count($remove_links_array); $j < $nn; $j++) {
-                    if ($add_links_array[$i]['products_id'] == $remove_links_array[$j]['products_id']) {
+                for ($j = 0, $nn = count($target_links_array); $j < $nn; $j++) {
+                    if ($reference_links_array[$i]['products_id'] == $target_links_array[$j]['products_id']) {
                         $good = 'true';
                         break;
                     }
                 }
-                // build final of good products
+                // build array of products to remove
                 if ($good == 'true') {
-                    $make_links_result[] = array('products_id' => $add_links_array[$i]['products_id']);
+                    $products_to_remove[] = array('products_id' => $reference_links_array[$i]['products_id']);
                 }
             }
-            // check if there are any products to remove
-            if (count($make_links_result) == 0) {//no products coincide
-                $messageStack->add_session(sprintf(WARNING_REMOVE_FROM_IN_TO_LINKED, $remove_to_linked, $remove_from_linked), 'warning');
+            // check that there are some products to remove
+            if (count($products_to_remove) == 0) {
+                $messageStack->add_session(sprintf(WARNING_REMOVE_FROM_IN_TO_LINKED, $category_id_target, $category_id_reference), 'warning');
             } else {
-
-                for ($i = 0, $n = count($make_links_result); $i < $n; $i++) {
-//          $cnt_removed++;
-                    $remove_product = $make_links_result[$i]['products_id'];
-                    $sql = "DELETE FROM " . TABLE_PRODUCTS_TO_CATEGORIES . "
-                WHERE products_id = " . $remove_product . "
-                AND categories_id = " . $remove_to_linked . " LIMIT 1";
+                $products_removed_message = '';
+                for ($i = 0, $n = count($products_to_remove); $i < $n; $i++) {
+                    $sql = "DELETE FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $products_to_remove[$i]['products_id'] . " AND categories_id = " . $category_id_target . " LIMIT 1";
                     $db->Execute($sql);
-                }
-                $messageStack->add_session(sprintf(SUCCESS_REMOVE_LINKED, $i, $remove_to_linked), 'success');
+                    $products_removed_message  = sprintf(SUCCESS_REMOVED_PRODUCT, $products_to_remove[$i]['products_id'], zen_get_products_name($products_to_remove[$i]['products_id'], (int)$_SESSION['languages_id']), zen_get_products_model($products_to_remove[$i]['products_id']), $category_id_target);
+                    }
+                $products_removed_message .= sprintf(SUCCESS_REMOVE_LINKED_PRODUCTS, $i);
+                $messageStack->add_session($products_removed_message, 'success');
             }
 
             zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
             break;
 
-        // reset the master_categories_id for all products in the selected category
+        // Global Tools: Reset the master_categories_id for all products in the selected category
         case 'reset_categories_products_to_another_category_master':
 
             $reset_from_master = (int)$_POST['reset_categories_id_from_master'];
@@ -632,7 +677,7 @@ if (zen_not_null($action)) {
             zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
             break;
 
-        // change the selected product master category id
+        // Change the master category id for the currently selected product
         case 'set_master_categories_id':
             $db->Execute("UPDATE " . TABLE_PRODUCTS . "
                     SET master_categories_id = " . (int)$_GET['master_category'] . "
@@ -643,7 +688,19 @@ if (zen_not_null($action)) {
             zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
             break;
 
-        //update the product-to-multiple-categories links
+        // Choose a product to display
+        case 'set_products_filter':
+            zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $_GET['products_filter'] . '&current_category_id=' . $_POST['current_category_id']));
+            break;
+
+        // Product to multiple category links: Set the root category from which to display the subcategories for selection
+        case 'set_target_category':
+            $target_category_id = (int)$_POST['target_category_id'];
+            zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES,
+                'products_filter=' . $products_filter . '&amp;current_category_id=' . $current_category_id . '&amp;target_category_id=' . $target_category_id));
+            break;
+
+        // Product to multiple category links: Update the product to multiple-categories links
         case 'update_product':
             if (!isset($_POST['categories_add'])) {//no linked categories are selected
                 $_POST['categories_add'] = array();
@@ -824,103 +881,6 @@ if (zen_not_null($action)) {
                     '&amp;target_category_id=' . $target_category_id));
             }
 // END CEON MODIFICATIONS 1.2.0 8 of 28
-            break;
-
-        case 'set_target_category':
-            $target_category_id = (int)$_POST['target_category_id'];
-            zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES,
-                'products_filter=' . $products_filter . '&amp;current_category_id=' . $current_category_id . '&amp;target_category_id=' . $target_category_id));
-            break;
-
-        case 'copy_linked_categories_to_another_product':
-            $copy_categories_type = !empty($_POST['type']) && $_POST['type'] != 'replace' ? 'add' : 'replace';
-            $target_product_id = (int)$_POST['target_product_id'];
-
-            if ($target_product_id == '') {
-                $messageStack->add(WARNING_COPY_LINKED_CATEGORIES_NO_TARGET, 'error');
-            } else {
-                $target_product_details = $target_product_id . ' "' . zen_get_products_name($target_product_id,
-                        (int)$_SESSION['languages_id']) . '" (' . zen_get_products_model($target_product_id) . ')'; // Used in messageStack
-
-                // Get the master category for the source product
-                $source_product_master_category_sql = "SELECT master_categories_id FROM " . TABLE_PRODUCTS . " WHERE products_id = " . $products_filter . " LIMIT 1";
-                $source_product_master_category_result = $db->Execute($source_product_master_category_sql);
-
-                // Get the master category for the target product
-                $target_product_master_category_sql = "SELECT master_categories_id FROM " . TABLE_PRODUCTS . " WHERE products_id = " . $target_product_id . " LIMIT 1";
-                $target_product_master_category_result = $db->Execute($target_product_master_category_sql);
-
-                if (!$source_product_master_category_result->EOF && !$target_product_master_category_result->EOF) {
-                    $source_product_master_categories_id = $source_product_master_category_result->fields['master_categories_id'];
-                    $target_product_master_categories_id = $target_product_master_category_result->fields['master_categories_id'];
-
-                    // Get the current product's linked categories
-                    $product_categories_result = $db->Execute("SELECT categories_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $products_filter . " 
-                    AND categories_id != " . $source_product_master_categories_id . " 
-                    AND categories_id != " . $target_product_master_categories_id);
-
-                    // Get the target product's linked categories
-                    $target_categories_result = $db->Execute("SELECT categories_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $target_product_id . " 
-                    AND categories_id !=" . $target_product_master_categories_id . " 
-                    AND categories_id !=" . $source_product_master_categories_id
-                    );
-
-                    $product_categories = array();
-                    foreach ($product_categories_result as $row) {
-                        $product_categories[] = $row['categories_id'];
-                    }
-                    echo __LINE__ . ': $product_categories)<br>';
-                    printArray($product_categories);//debug
-
-                    $target_categories = array();
-                    foreach ($target_categories_result as $row) {
-                        $target_categories[] = $row['categories_id'];
-                    }
-                    echo __LINE__ . ': $target_categories)<br>';
-                    printArray($target_categories);//debug
-
-                    $target_categories_update = array();
-                    switch ($copy_categories_type) {
-                        case 'add':
-                            foreach ($product_categories as $id) {
-                                if (!in_array($id, $target_categories)) { // Include only NEW linked categories from source product
-                                    $target_categories_update[] = $id;
-                                }
-                            }
-                            break;
-
-                        case 'replace':
-                            $db->Execute("DELETE FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $target_product_id . " AND categories_id != " . $target_product_master_categories_id);
-                            $target_categories_update = $product_categories;
-                            break;
-                    }
-
-                    if (sizeof($target_categories_update) < 1) {// No new categories to add
-                        $messageStack->add(sprintf(WARNING_COPY_LINKED_CATEGORIES_NO_ADDITIONAL,
-                            $products_filter . ' ' . zen_get_products_model($products_filter) . '-' . zen_get_products_name($products_filter, (int)$_SESSION['languages_id']),
-                            $target_product_id . ' ' . zen_get_products_model($target_product_id) . '-' . zen_get_products_name($target_product_id, (int)$_SESSION['languages_id'])), 'warning');
-                        break;
-                    }
-
-                    foreach ($target_categories_update as $target_category) {
-                        $db->Execute("INSERT INTO " . TABLE_PRODUCTS_TO_CATEGORIES . " (products_id, categories_id) VALUES (" . $target_product_id . ", " . $target_category . ")");
-                    }
-
-                    $target_product_name_sql = "SELECT products_name FROM " . TABLE_PRODUCTS_DESCRIPTION . " WHERE products_id = '" . $target_product_id . "' AND language_id = " . (int)$_SESSION['languages_id'] . " LIMIT 1";
-                    $target_product_name_result = $db->Execute($target_product_name_sql);
-
-                    $messageStack->add(sprintf(($copy_categories_type == 'add' ? SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT_ADD : SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT_REPLACE),
-                        sizeof($target_categories_update), $source_product_details, $target_product_details), 'success');
-
-                } else {
-                    if ($source_product_master_category_result->EOF) {
-                        $messageStack->add(sprintf(ERROR_MASTER_CATEGORY_MISSING, $source_product_details));
-                    }
-                    if ($target_product_master_category_result->EOF) {
-                        $messageStack->add(sprintf(ERROR_MASTER_CATEGORY_MISSING, $target_product_details));
-                    }
-                }
-            }
             break;
     }
 }
@@ -1476,7 +1436,7 @@ JS_BLOCK;
         <!-- Copy all products from one category to another as linked products -->
         <div class="row dataTableHeadingRow">
             <?php echo zen_draw_form('linked_copy', FILENAME_PRODUCTS_TO_CATEGORIES,
-                'action=copy_categories_products_to_another_category_linked' . '&products_filter=' . $products_filter . '&current_category_id=' . $current_category_id, 'post',
+                'action=copy_a_categories_products_to_another_category_linked' . '&products_filter=' . $products_filter . '&current_category_id=' . $current_category_id, 'post',
                 'class="form-horizontal"'); ?>
             <h3><?php echo TEXT_HEADING_COPY_ALL_PRODUCTS_TO_CATEGORY_LINKED; ?></h3>
             <div class="form-group-row">
@@ -1504,21 +1464,21 @@ JS_BLOCK;
         <!-- Remove products from one category that are linked to another category -->
         <div class="row dataTableHeadingRow">
             <?php echo zen_draw_form('linked_remove', FILENAME_PRODUCTS_TO_CATEGORIES,
-                'action=remove_categories_products_to_another_category_linked' . '&products_filter=' . $products_filter . '&current_category_id=' . $current_category_id, 'post',
+                'action=remove_linked_products' . '&products_filter=' . $products_filter . '&current_category_id=' . $current_category_id, 'post',
                 'class="form-horizontal"'); ?>
             <h3><?php echo TEXT_HEADING_REMOVE_ALL_PRODUCTS_FROM_CATEGORY_LINKED; ?></h3>
             <div class="form-group-row">
-                <?php echo TEXT_INFO_REMOVE_ALL_PRODUCTS_TO_CATEGORY_LINKED; ?>
+                <?php echo sprintf(TEXT_INFO_REMOVE_ALL_PRODUCTS_TO_CATEGORY_LINKED, $current_category_id); ?>
             </div>
             <div class="form-group-row">
                 <div class="col-lg-4">
-                    <?php echo zen_draw_label(TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_FROM_LINKED, 'remove_categories_id_from_linked',
-                            'class="control-label"') . zen_draw_input_field('remove_categories_id_from_linked', '', 'id="remove_categories_id_from_linked" class="form-control" step="1" min="1"', '',
+                    <?php echo zen_draw_label(TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_FROM_LINKED, 'category_id_reference',
+                            'class="control-label"') . zen_draw_input_field('category_id_reference', '', 'id="category_id_reference" class="form-control" step="1" min="1"', '',
                             'number'); ?>
                 </div>
                 <div class="col-lg-4">
-                    <?php echo zen_draw_label(TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_TO_LINKED, 'remove_categories_id_to_linked',
-                            'class="control-label"') . zen_draw_input_field('remove_categories_id_to_linked', '', 'id="remove_categories_id_to_linked" class="form-control" step="1" min="1"', '',
+                    <?php echo zen_draw_label(TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_TO_LINKED, 'category_id_target',
+                            'class="control-label"') . zen_draw_input_field('category_id_target', '', 'id="category_id_target" class="form-control" step="1" min="1"', '',
                             'number'); ?>
                 </div>
                 <div class="col-lg-4">

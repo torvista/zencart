@@ -58,15 +58,17 @@ define('WARNING_NO_CATEGORIES_ID', 'Warning: no categories were selected ... no 
 define('SUCCESS_COPY_LINKED', '%1$u product(s) copied (linked), from Source Category ID#%2$u to Target Category ID#%3$u');
 define('WARNING_COPY_FROM_IN_TO_LINKED', 'WARNING: No products copied (all products in Category ID#%1$u are already linked into Category ID#%2$u)');
 
-// Remove Products in reference category from linked category
+// Remove Products in Reference category from Target category
 define('TEXT_HEADING_REMOVE_ALL_PRODUCTS_FROM_CATEGORY_LINKED', 'Remove Linked Products from a Category');
-define('TEXT_INFO_REMOVE_ALL_PRODUCTS_TO_CATEGORY_LINKED', 'Example: Using Reference Category #8 and Target Category #22 will remove any linked products from the Target Category #22 that exist in the Reference Category #8. No product in Target Category #22 can have a master category ID of #22 (if so, it must be reassigned to another category).');//TODO check this second paragraph
+define('TEXT_INFO_REMOVE_ALL_PRODUCTS_TO_CATEGORY_LINKED', 'Example: Using Reference Category #8 and Target Category #22 will remove any linked products from the Target Category #22 that exist in the Reference Category #8. No product in Target Category #22 can have a master category ID of #22 (if so, it must be reassigned to another category).<br /><strong>Current Category ID#%u.</strong>');
 define('TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_FROM_LINKED', 'Select ALL Products in the Reference Category: ');
 define('TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_TO_LINKED', 'Remove Any Linked Products from the Target Category: ');
 define('BUTTON_REMOVE_CATEGORY_LINKED', 'Remove Linked Products');
-define('SUCCESS_REMOVE_LINKED', '%1$u linked product(s) removed from Category ID#%2$u');
-define('WARNING_REMOVE_FROM_IN_TO_LINKED', 'WARNING: No changes made: no products in Target Category ID#%1$u are linked from Reference Category ID#%2$u');
-define('WARNING_REMOVE_LINKED_PRODUCTS_MASTER_CATEGORIES_ID_CONFLICT', '<strong>WARNING: MASTER CATEGORIES ID CONFLICT!</strong><br />Reference Category ID#%1$u for removal of linked products in Target Category ID#%2$u.<br />You have requested the removal of some linked products from a target category. One or more of those products has the same master category ID as the target category. This means that the product is not "linked" to the target category but "resides" in that category and so cannot be removed as part of this request to remove <i>linked</i> products.<br />If you wish to <i>retain</i> this product, you must change it\'s master category ID to another category (i.e. "Move" it) before carrying out this process again. This may be done on this page or via the "Move" action on a Category-Product listing page. The first product with a conflicting master category ID has been already selected for editing.<br/>If you wish to <i>delete</i> this product, you must use the "Delete" action on the Category-Product listing page.<br /><br /><strong>Products(s) with a conflicting master category ID:</strong><br />%3$s');
+define('SUCCESS_REMOVED_PRODUCT', 'Product <strong>ID#%1$u "%2$s" (%3$s)</strong> was removed from category ID#%4$u<br />');
+define('SUCCESS_REMOVE_LINKED_PRODUCTS', '%u linked product(s) removed');
+define('WARNING_REMOVE_FROM_IN_TO_LINKED', 'WARNING: Nothing to do! No products in Target Category ID#%1$u are linked from Reference Category ID#%2$u');
+define('WARNING_PRODUCT_MASTER_CATEGORY_IN_TARGET','Product <strong>ID#%1$u "%2$s" (%3$s)</strong> has the same master category id as the target category ID#%4$u<br />');
+define('WARNING_REMOVE_LINKED_PRODUCTS_MASTER_CATEGORIES_ID_CONFLICT', '<strong>WARNING: MASTER CATEGORIES ID CONFLICT!</strong><br />Reference Category ID#%1$u for removal of linked products in Target Category ID#%2$u.<br />You have requested the removal of some linked products from a target category. One or more of those products has the same master category ID as the target category. This means that the product is not "linked" to the target category but "resides" in that category and so cannot be removed as part of this request to remove <i>linked</i> products.<br />If you wish to <i>retain</i> this product, you must change it\'s master category ID to another category (i.e. "Move" it) before carrying out this process again. This may be done on this page or via the "Move" action on a Category-Product listing page. The first product with a conflicting master category ID has been already selected for editing.<br/>If you wish to <i>delete</i> this product, you must use the "Delete" action on the Category-Product listing page.');
 
 // Copy Linked Categories from one product to another
 define('TEXT_HEADING_COPY_LINKED_CATEGORIES', 'Copy Linked Categories to Another Product');
@@ -80,7 +82,7 @@ define('WARNING_COPY_LINKED_CATEGORIES_NO_TARGET', 'A target product was not sel
 define('WARNING_COPY_LINKED_CATEGORIES_NO_ADDITIONAL', 'Nothing to do!<br />Source Product ID#%1$s has no additional linked categories to copy to Target Product ID#%2$s');
 define('ERROR_MASTER_CATEGORY_MISSING', 'ERROR: Master Category ID missing from table ' . TABLE_PRODUCTS_TO_CATEGORIES . '<br />Product ID#%s');
 
-// Set Master Categories ID  for all products in a category
+// Set Master Categories ID for all products in a category
 define('TEXT_HEADING_RESET_ALL_PRODUCTS_TO_CATEGORY_MASTER', 'Reset the Master Category ID for ALL Products in a Category');
 define('TEXT_INFO_RESET_ALL_PRODUCTS_TO_CATEGORY_MASTER', 'Example: Resetting Category 22 will assign a Master Category ID of 22 to ALL the products in Category 22, .');
 define('TEXT_INFO_RESET_ALL_PRODUCTS_TO_CATEGORY_FROM_MASTER', 'Reset the Master Category ID for All Products in Category: ');
