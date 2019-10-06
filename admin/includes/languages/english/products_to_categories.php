@@ -55,6 +55,7 @@ define('WARNING_CATEGORY_IDS_DUPLICATED', 'Warning: same Category IDs (#%u)');
 define('WARNING_CATEGORY_NO_PRODUCTS', '<strong>Source</strong> Category ID#%u invalid (contains no products)');
 define('WARNING_CATEGORY_SUBCATEGORIES', '<strong>Target</strong> Category ID#%u invalid (contains subcategories)');
 define('WARNING_NO_CATEGORIES_ID', 'Warning: no categories were selected ... no changes were made');
+define('SUCCESS_PRODUCT_COPIED', 'Product <strong>ID#%1$u "%2$s" (%3$s)</strong> was copied to category ID#%4$u<br />');
 define('SUCCESS_COPY_LINKED', '%1$u product(s) copied (linked), from Source Category ID#%2$u to Target Category ID#%3$u');
 define('WARNING_COPY_FROM_IN_TO_LINKED', 'WARNING: No products copied (all products in Category ID#%1$u are already linked into Category ID#%2$u)');
 
@@ -87,11 +88,10 @@ define('TEXT_HEADING_RESET_ALL_PRODUCTS_TO_CATEGORY_MASTER', 'Reset the Master C
 define('TEXT_INFO_RESET_ALL_PRODUCTS_TO_CATEGORY_MASTER', 'Example: Resetting Category 22 will assign a Master Category ID of 22 to ALL the products in Category 22, .');
 define('TEXT_INFO_RESET_ALL_PRODUCTS_TO_CATEGORY_FROM_MASTER', 'Reset the Master Category ID for All Products in Category: ');
 define('BUTTON_RESET_CATEGORY_MASTER', 'Reset Master Categories ID');
-define('SUCCESS_RESET_ALL_PRODUCTS_TO_CATEGORY_FROM_MASTER', 'All products in Category ID#%1$d have been reset to have Master Category ID#%1$d');
+define('SUCCESS_RESET_PRODUCTS_MASTER_CATEGORY', 'All products in Category ID#%1$d have been reset to have Master Category ID#%1$d');
 define('TEXT_CATEGORIES_NAME', 'Categories Name');
 
 //unused constants
-
 //define('TABLE_HEADING_ACTION', 'Action');
 //define('TEXT_INFO_PRODUCTS_TO_CATEGORIES_AVAILABLE', 'Categories with Products that are Available for Linking ...');
 //define('TABLE_HEADING_PRODUCTS_ID', 'Prod ID');
