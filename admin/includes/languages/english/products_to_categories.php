@@ -17,7 +17,7 @@ define('WARNING_PRODUCTS_LINK_TO_CATEGORY_REMOVED', 'WARNING: The previously-sel
 // Change Master Category
 define('TEXT_PRODUCTS_ID_INVALID', 'WARNING: Product ID#%u is invalid/does not exist in the database.');
 define('TEXT_INFO_MASTER_CATEGORY_CHANGE','A product has a Master Category ID (for pricing purposes) that can be considered as the category where the product actually <i>resides</i>. Additionally, a product can be <i>linked</i> (copied) to any number of other categories, where the price may be modified due to conditions on those linked categories.<br />The Master Category ID can be changed by using this Master Category dropdown, that only offers the <strong>currently linked</strong> categories as possible alternatives.<br />To set the Master Category ID to <strong>another</strong> category, first link it to the new category using the table below, and Update. Then use this dropdown to reassign the master category to the new category.');
-define('WARNING_MASTER_CATEGORIES_ID', 'WARNING: No Master Category is set for Product ID#%u!<br />This MUST be corrected immediately.');
+define('ERROR_DEFINE_PRODUCTS_MASTER_CATEGORIES_ID', 'WARNING: No Master Category is set for Product ID#%u!<br />This MUST be corrected immediately.');
 
 // Product InfoBox
 define('TEXT_INFOBOX_HEADING_SELECT_PRODUCT', 'Select Product by ID#');
@@ -92,6 +92,7 @@ define('SUCCESS_RESET_PRODUCTS_MASTER_CATEGORY', 'All products in Category ID#%1
 define('TEXT_CATEGORIES_NAME', 'Categories Name');
 
 //unused constants
+//define('WARNING_MASTER_CATEGORIES_ID', 'WARNING: No Master Category is set for Product ID#%u!<br />This MUST be corrected immediately.');
 //define('TABLE_HEADING_ACTION', 'Action');
 //define('TEXT_INFO_PRODUCTS_TO_CATEGORIES_AVAILABLE', 'Categories with Products that are Available for Linking ...');
 //define('TABLE_HEADING_PRODUCTS_ID', 'Prod ID');

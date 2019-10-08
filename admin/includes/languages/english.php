@@ -4,7 +4,7 @@
  * @copyright Copyright 2003-2019 Zen Cart Development Team
  * @copyright Portions Copyright 2003 osCommerce
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: Scott C Wilson 2019 Jan 21 Modified in v1.5.6b $
+ * @version $Id: torvista 2019 Aug 08 Modified in v1.5.7 $
  */
 if (!defined('IS_ADMIN_FLAG'))
 {
@@ -84,7 +84,7 @@ if (!defined('TEXT_GV_NAME')) {
   define('TEXT_DISCOUNT_COUPON', 'Discount Coupon');
 
 // used for redeem code, redemption code, or redemption id
-  define('TEXT_GV_REDEEM','Redemption Code');
+define('TEXT_GV_REDEEM','Redemption Code');
 
 // text for gender
 define('MALE', 'Male');
@@ -212,7 +212,7 @@ define('BOX_LOCALIZATION_ORDERS_STATUS', 'Orders Status');
 // gift vouchers box text
 define('BOX_HEADING_GV_ADMIN', 'Discounts');
 define('BOX_GV_ADMIN_QUEUE',  TEXT_GV_NAMES . ' Queue');
-define('BOX_GV_ADMIN_MAIL', 'Mail ' . TEXT_GV_NAME);
+define('BOX_GV_ADMIN_MAIL', 'Send a ' . TEXT_GV_NAME);
 define('BOX_GV_ADMIN_SENT', TEXT_GV_NAMES . ' sent');
 define('BOX_COUPON_ADMIN','Coupon Admin');
 define('BOX_COUPON_RESTRICT','Coupon Restrictions');
@@ -379,6 +379,7 @@ define('IMAGE_PRODUCTS_TO_CATEGORIES', 'Multiple Categories Link Manager');
 define('IMAGE_ICON_STATUS_ON', 'Status - Enabled');
 define('IMAGE_ICON_STATUS_OFF', 'Status - Disabled');
 define('IMAGE_ICON_LINKED', 'Product is Linked');
+define('IMAGE_ICON_LINKED_CATEGORY', 'Category contains Linked Products');
 
 define('IMAGE_REMOVE_SPECIAL','Remove Special Price Info');
 define('IMAGE_REMOVE_FEATURED','Remove Featured Product Info');
@@ -458,6 +459,7 @@ define('ERROR_NO_DEFAULT_CURRENCY_DEFINED', 'Error: There is currently no defaul
 define('TEXT_NONE', '--none--');
 define('TEXT_TOP', 'Top');
 define('PLEASE_SELECT', 'Please select ...');
+define('TEXT_CUSTOMER','Customer');
 
 define('ERROR_DESTINATION_DOES_NOT_EXIST', 'Error: Destination does not exist %s');
 define('ERROR_DESTINATION_NOT_WRITEABLE', 'Error: Destination not writeable %s');
@@ -666,8 +668,9 @@ define('ENTRY_EMAIL_TEXT_DISPLAY','TEXT-Only');
 define('ENTRY_EMAIL_NONE_DISPLAY','Never');
 define('ENTRY_EMAIL_OPTOUT_DISPLAY','Opted Out of Newsletters');
 define('ENTRY_NOTHING_TO_SEND','You haven\'t entered any content for your message');
- define('EMAIL_SEND_FAILED','ERROR: Failed sending email to: "%s" <%s> with subject: "%s"');
-
+define('EMAIL_SEND_FAILED','ERROR: Failed sending email to: "%s" <%s> with subject: "%s"');
+define('EMAIL_SALUTATION', 'Dear');
+  
   define('EDITOR_NONE', 'Plain Text');
   define('TEXT_EDITOR_INFO', 'Text Editor');
   define('ERROR_EDITORS_FOLDER_NOT_FOUND', 'You have an HTML editor selected in \'My Store\' but the \'/editors/\' folder cannot be located. Please disable your selection or move your editor files into the \''.DIR_WS_CATALOG.'editors/\' folder');
@@ -695,7 +698,6 @@ define('ENTRY_NOTHING_TO_SEND','You haven\'t entered any content for your messag
   define('ERROR_DEFINE_OPTION_NAMES', 'Warning: No Option Names have been defined');
   define('ERROR_DEFINE_OPTION_VALUES', 'Warning: No Option Values have been defined');
   define('ERROR_DEFINE_PRODUCTS', 'Warning: No Products have been defined');
-  define('ERROR_DEFINE_PRODUCTS_MASTER_CATEGORIES_ID', 'Warning: No Master Category ID has been set for this Product');
 
   define('BUTTON_ADD_PRODUCT_TYPES_SUBCATEGORIES_ON','Add include SubCategories');
   define('BUTTON_ADD_PRODUCT_TYPES_SUBCATEGORIES_OFF','Add without SubCategories');

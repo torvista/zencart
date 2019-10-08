@@ -724,13 +724,13 @@ if ($products_filter > 0) {
                                  WHERE p.products_id = " . $products_filter . "
                                  AND p.products_id = pd.products_id
                                  AND pd.language_id = " . (int)$_SESSION['languages_id'] . " LIMIT 1");
+
+    $products_list = $db->Execute("SELECT products_id, categories_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $products_filter);
 }
 
 // Build the list of categories within the target category
 $categories_info = array();
 ceonGetCategoriesInfo($target_category_id);
-
-$products_list = $db->Execute("SELECT products_id, categories_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $products_filter);
 
 ?>
 <!doctype html>
@@ -878,7 +878,7 @@ $products_list = $db->Execute("SELECT products_id, categories_id FROM " . TABLE_
                                 <button type="submit" class="btn btn-info"><?php echo IMAGE_UPDATE; ?></button>
                                 <?php
                                 if ($product_to_copy->fields['master_categories_id'] < 1) { ?>
-                                    <span class="alert" style="font-size: larger;padding:0;"><?php echo sprintf(WARNING_MASTER_CATEGORIES_ID, $products_filter); ?></span>
+                                    <span class="alert" style="font-size: larger;padding:0;"><?php echo sprintf(ERROR_DEFINE_PRODUCTS_MASTER_CATEGORIES_ID, $products_filter); ?></span>
                                 <?php } ?>
                                 <?php echo '</form>'; ?>
                             </div>
@@ -932,7 +932,7 @@ $products_list = $db->Execute("SELECT products_id, categories_id FROM " . TABLE_
 
                                 switch (true) {
                                     case ($product_to_copy->fields['master_categories_id'] == 0 && $products_filter > 0):
-                                        $contents[] = array('text' => '<span class="alert">' . WARNING_MASTER_CATEGORIES_ID . '</span>');
+                                        $contents[] = array('text' => '<span class="alert">' . ERROR_DEFINE_PRODUCTS_MASTER_CATEGORIES_ID . '</span>');
                                         break;
                                     default:
                                         $contents[] = array(
