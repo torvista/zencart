@@ -1,4 +1,5 @@
 <?php //steve
+//todo: texts for when master category is not in p2c table
 //PR waiting: for extra closing div removed,  removed <body onload="init();"> duplicated in comments, removed extra div
 //new 2019 09 PR not submitted
 //merge in Conor code for displaying linked categories as full paths, alpha sorted, All/None selectable, filter by subcategories dropdown
