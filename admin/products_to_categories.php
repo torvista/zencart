@@ -1,7 +1,8 @@
-<?php //steve
-//todo: texts for when master category is not in p2c table
-//PR waiting: for extra closing div removed,  removed <body onload="init();"> duplicated in comments, removed extra div
-//new 2019 09 PR not submitted
+<?php //steve UNDER DEVELOPMENT
+//TODO
+//extract functions
+//texts for when master category is not in p2c table
+//DONE
 //merge in Conor code for displaying linked categories as full paths, alpha sorted, All/None selectable, filter by subcategories dropdown
 //merge in Conor code for Global Tool copy linked categories from one product to another
 //simplified layout and code structure: easier to see blocks when all collapsed
@@ -23,14 +24,28 @@
 //review of Global Tools: reset master categories
 $debug_p2c = true;
 $debug_class = ' class="alert-danger"';
-if (!function_exists('printArray')) {
-    function printArray($a, $t = 'pre')
+//debugging function
+if (!function_exists('mv_printVar')) {
+    function mv_printVar($a)
     {
-        echo "<$t>" . print_r($a, 1) . "</$t>";
+        $backtrace = debug_backtrace()[0];
+        $fh = fopen($backtrace['file'], 'rb');
+        $line = 0;
+        $code = '';
+        while (++$line <= $backtrace['line']) {
+            $code = fgets($fh);
+        }
+        fclose($fh);
+        preg_match('/' . __FUNCTION__ . '\s*\((.*)\)\s*;/u', $code, $name);
+        echo '<pre><strong>' . trim($name[1]) . ":</strong>\n";
+        print_r($a);
+        echo '</pre><br>';
     }
 }
-/**steve this stuff for phpstorm inspections
- * @var $messageStack
+/**steve for phpStorm inspections
+ * @var messageStack $messageStack
+ * @var zcObserverLogEventListener $zco_notifier
+ * @var products $zc_products
  */
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -153,9 +168,10 @@ if (isset($_POST['target_category_id'])) {
 } elseif (isset($_GET['target_category_id'])) {
         $target_category_id = $_GET['target_category_id'];
     } else {
-        $target_category_id = '0';
+        $target_category_id = '3';
     }
-
+// steve Default to top category
+//$target_category_id = '3';//steve set starting category
 // {{{ CeonCategoriesInfo()
 
 /**
@@ -662,7 +678,7 @@ if (zen_not_null($action)) {
 
             // Build the list of categories within the target category
             $categories_info = array();
-            ceonGetCategoriesInfo($target_category_id);//$target_category_id is the chosen root category that contains the subcategories to link to. This populates array $categories_info
+            ceonGetCategoriesInfo($target_category_id);//$target_category_id is the chosen root category that contains the subcategories to link to. This function populates array $categories_info
             $num_target_categories = count($categories_info);
 
             // Make the list of all the possible target subcategories' IDs. At the same time, check if product master category and currently-selected category are in the list of target subcategories
@@ -857,6 +873,7 @@ ceonGetCategoriesInfo($target_category_id);
             <!-- master category select -->
             <?php if ($products_filter > 0) {//a product is selected ?>
                 <div class="row">
+                    <hr>
                     <h3><?php echo TEXT_MASTER_CATEGORIES_ID; ?></h3>
                     <div class="col-lg-6"><?php echo TEXT_INFO_MASTER_CATEGORY_CHANGE; ?></div>
 
@@ -973,7 +990,7 @@ ceonGetCategoriesInfo($target_category_id);
         <!-- RIGHT column block (infoBox) eof -->
     </div>
     <!-- Product selection-infoBox block eof -->
-
+<hr>
     <!-- Category Links -->
     <?php if ($products_filter > 0 && $product_to_copy->fields['master_categories_id'] > 0) { //a product is selected AND it has a master category ?>
         <div class="row">
