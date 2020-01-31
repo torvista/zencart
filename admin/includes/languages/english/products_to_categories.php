@@ -17,7 +17,7 @@ define('WARNING_PRODUCTS_LINK_TO_CATEGORY_REMOVED', 'WARNING: The previously-sel
 // Change Master Category
 define('TEXT_PRODUCTS_ID_INVALID', 'WARNING: Product ID#%u is invalid/does not exist in the database.');
 define('TEXT_INFO_MASTER_CATEGORY_CHANGE','A product has a Master Category ID (for pricing purposes) that can be considered as the category where the product actually <i>resides</i>. Additionally, a product can be <i>linked</i> (copied) to any number of other categories, where the price may be modified due to conditions on those linked categories.<br />The Master Category ID can be changed by using this Master Category dropdown, that only offers the <strong>currently linked</strong> categories as possible alternatives.<br />To set the Master Category ID to <strong>another</strong> category, first link it to the new category using the table below, and Update. Then use this dropdown to reassign the master category to the new category.');
-define('ERROR_DEFINE_PRODUCTS_MASTER_CATEGORIES_ID', 'WARNING: No Master Category is set for Product ID#%u!<br />This MUST be corrected immediately.');
+define('ERROR_DEFINE_PRODUCTS_MASTER_CATEGORIES_ID', 'WARNING: No Master Category is set for product %s!<br />This MUST be corrected immediately.');
 
 // Product InfoBox
 define('TEXT_INFOBOX_HEADING_SELECT_PRODUCT', 'Select Product by ID#');
@@ -36,7 +36,7 @@ define('TEXT_INFO_PRODUCTS_TO_CATEGORIES_LINKER_INTRO', 'This product is current
 define('TEXT_LABEL_CATEGORY_DISPLAY_ROOT', 'Display the SubCategories under:');
 define('TEXT_LABEL_SELECT_ALL_OR_NONE', 'Select All or None');
 define('ERROR_CATEGORY_ID_INVALID', 'Linked Category ID#%u invalid (not added).');
-define('SUCCESS_PRODUCT_LINKED_TO_CATEGORIES', 'Product to Categories Links updated successfully for product ID#%s');
+define('SUCCESS_PRODUCT_LINKED_TO_CATEGORIES', 'Product links to categories Links updated for %s');
 define('WARNING_PRODUCT_UNLINKED_FROM_CATEGORY', 'The product was unlinked from the previously selected category "%1$s" ID#%2$u, and so is now shown in it\'s master category.');
 
 // Global Tools
@@ -50,11 +50,11 @@ define('TEXT_LABEL_ENABLE_COPY_LINKS', 'Enable product selection dropdown (lists
 define('TEXT_OPTION_LINKED_CATEGORIES', 'Select the Target Product');
 define('BUTTON_COPY_LINKED_CATEGORIES_ADD', 'Copy-Add Linked Categories');
 define('BUTTON_COPY_LINKED_CATEGORIES_REPLACE', 'Copy-Replace Linked Categories');
-define('SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT_ADD', 'Linked Categories (%1$u) have been added:<br />FROM Reference Product ID#%2$s<br />TO Target Product ID#%3$s');
-define('SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT_REPLACE', 'Linked Categories (%1$u) for Target Product ID#%3$s have been replaced by the Linked Categories of Product ID#%2$s');
+define('SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT_ADD', 'Linked Categories (%1$u) have been added:<br />FROM Reference Product %2$s<br />TO Target Product %3$s');
+define('SUCCESS_LINKED_CATEGORIES_COPIED_TO_TARGET_PRODUCT_REPLACE', 'Linked Categories (%1$u) for Target Product %3$s have been replaced by the Linked Categories of Product %2$s');
 define('WARNING_COPY_LINKED_CATEGORIES_NO_TARGET', 'A target product was not selected!');
-define('WARNING_COPY_LINKED_CATEGORIES_NO_ADDITIONAL', 'Nothing to do!<br />Source Product ID#%1$s has no additional linked categories to copy to Target Product ID#%2$s');
-define('ERROR_MASTER_CATEGORY_MISSING', 'ERROR: Master Category ID missing from table ' . TABLE_PRODUCTS_TO_CATEGORIES . '<br />Product ID#%s');
+define('WARNING_COPY_LINKED_CATEGORIES_NO_ADDITIONAL', 'Nothing to do!<br />Source Product %1$s has no additional linked categories to copy to Target Product %2$s');
+define('ERROR_MASTER_CATEGORY_MISSING', 'ERROR: Master Category ID missing from table ' . TABLE_PRODUCTS_TO_CATEGORIES . '<br />Product %s');
 
 // Copy as linked, all products from category source to category target
 define('TEXT_HEADING_COPY_ALL_PRODUCTS_TO_CATEGORY_LINKED', 'Link (copy) Products from one Category to another Category');

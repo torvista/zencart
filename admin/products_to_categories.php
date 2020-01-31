@@ -85,7 +85,7 @@ if ($chk_products->RecordCount() < 1) {
 
 // Verify that product has a master_categories_id
 if ($products_filter > 0) {
-    $source_product_details = '<strong>' . $products_filter . ' "' . zen_get_products_name($products_filter,
+    $source_product_details = '<strong>(ID#' . $products_filter . ') "' . zen_get_products_name($products_filter,
             (int)$_SESSION['languages_id']) . '" (' . zen_get_products_model($products_filter) . ')</strong>'; // Used for various messageStack
     $chk_products = $db->Execute("SELECT master_categories_id
                               FROM " . TABLE_PRODUCTS . "
@@ -258,7 +258,7 @@ function ceonGetCategoriesInfo(int $parent_id, $category_path_string = '')
             ];
         } else {
             // category has subcategories, get the info for them
-            ceonGetCategoriesInfo($category_id, $category_name);
+            ceonGetCategoriesInfo((int)$category_id, $category_name);
         }
     }
 }
@@ -306,8 +306,7 @@ function ceonGetTargetCategoryList(int $parent_id = 0, $spacing = '', $category_
                 'text' => $spacing . $category['categories_name']
             ];
 
-            $category_tree_array = ceonGetTargetCategoryList($category['categories_id'],
-                $spacing . '&nbsp;&nbsp;&nbsp;', $category_tree_array);
+            $category_tree_array = ceonGetTargetCategoryList((int)$category['categories_id'], $spacing . '&nbsp;&nbsp;&nbsp;', $category_tree_array);
         }
     }
     return $category_tree_array;
@@ -466,7 +465,7 @@ if (zen_not_null($action)) {
             if ($target_product_id === '') {
                 $messageStack->add(WARNING_COPY_LINKED_CATEGORIES_NO_TARGET, 'error');
             } else {
-                $target_product_details = '<strong>' . $target_product_id . ' "' . zen_get_products_name($target_product_id,
+                $target_product_details = '<strong>(ID#' . $target_product_id . ') "' . zen_get_products_name($target_product_id,
                         (int)$_SESSION['languages_id']) . '" (' . zen_get_products_model($target_product_id) . ')</strong>'; // Used in messageStack
 
                 // Get the master category for the source product
@@ -762,7 +761,7 @@ if ($products_filter > 0) {
 
 // Build the list of categories within the target category
 $categories_info = [];
-ceonGetCategoriesInfo($target_category_id);
+ceonGetCategoriesInfo((int)$target_category_id);
 
 ?>
 <!doctype html>
