@@ -56,10 +56,19 @@ if (!function_exists('mv_printVar')) {
  * @version $Id: torvista 2019 June 16 Modified in v1.5.7 $
  */
 require('includes/application_top.php');
-
+/* remove
 $_GET['products_filter'] = $products_filter = (int)(
 (isset($_POST['products_filter']) ? (int)$_POST['products_filter'] :
     (isset($_GET['products_filter']) && $_GET['products_filter'] > 0 ? (int)$_GET['products_filter'] : '0')));
+*/
+if (!empty($_POST['products_filter'])) {
+    $products_filter = (int)$_POST['products_filter'];
+} elseif (!empty($_GET['products_filter'])) {
+    $products_filter = (int)$_GET['products_filter'];
+} else {
+    $products_filter = 0;
+}
+$_GET['products_filter'] = $products_filter;
 
 $_GET['current_category_id'] = $current_category_id = (int)(isset($_GET['current_category_id']) ? $_GET['current_category_id'] : $current_category_id);
 
@@ -367,14 +376,13 @@ function ceonGetTargetCategoryProductList($parent_id = '0', $spacing = '', $cate
 
         $products_result = $db->Execute($products_sql);
 
-        //while (!$products_result->EOF) {
         foreach ($products_result as $product_result) {
-            if ($product_result['products_id'] != $products_filter) {
-                $category_product_tree_array[] = array(
+            if ($product_result['products_id'] !== $products_filter) {
+                $category_product_tree_array[] = [
                     'id' => $product_result['products_id'],
-                    'text' => $spacing . $category['categories_name'] . ' : ' .
-                        $product_result['products_name'] . ' #' . $product_result['products_id']
-                );
+                    'text' => $spacing . htmlentities($category['categories_name']) . ' : ' .
+                        htmlentities($product_result['products_name']) . ' (#' . $product_result['products_id'] . ')'
+                ];
             }
         }
     }
@@ -1161,33 +1169,38 @@ JS_BLOCK;
 
         <!-- Copy linked categories from one product to another -->
         <div class="row dataTableHeadingRow">
-            <?php echo zen_draw_form('copy_linked_categories_to_another_product', FILENAME_PRODUCTS_TO_CATEGORIES,
-                'action=copy_linked_categories_to_another_product' . '&amp;products_filter=' . $products_filter . '&amp;current_category_id=' . $current_category_id, 'post',
-                'class="form-horizontal"'); ?>
             <h3><?php echo TEXT_HEADING_COPY_LINKED_CATEGORIES; ?></h3>
             <div class="form-group-row">
                 <?php echo TEXT_INFO_COPY_LINKED_CATEGORIES; ?>
             </div>
-            <?php // Get the list of products and build a select gadget
-            $category_product_tree_array = array();
-            $category_product_tree_array[] = array(
-                'id' => '',
-                'text' => TEXT_OPTION_LINKED_CATEGORIES
-            );
-            $category_product_tree_array = ceonGetTargetCategoryProductList(0, '', $category_product_tree_array);
-            ?>
-            <div class="form-group-row">
-                <div class="col-lg-8">
-                    <?php echo zen_draw_pull_down_menu('target_product_id', $category_product_tree_array, '', 'id="target_product_id"'); ?>
+            <?php
+            if ($products_filter > 0) {
+                echo zen_draw_form('copy_linked_categories_to_another_product', FILENAME_PRODUCTS_TO_CATEGORIES,
+                    'action=copy_linked_categories_to_another_product' . '&amp;products_filter=' . $products_filter . '&amp;current_category_id=' . $current_category_id, 'post',
+                    'class="form-horizontal"');
+                // Get the list of products and build a select gadget
+                $category_product_tree_array = array();
+                $category_product_tree_array[] = array(
+                    'id' => '',
+                    'text' => TEXT_OPTION_LINKED_CATEGORIES
+                );
+                $category_product_tree_array = ceonGetTargetCategoryProductList(0, '', $category_product_tree_array);
+                ?>
+                <div class="form-group-row">
+                    <div class="col-lg-8">
+                        <?php echo zen_draw_pull_down_menu('target_product_id', $category_product_tree_array, '', 'id="target_product_id"'); ?>
+                    </div>
+                    <div class="col-lg-2">
+                        <button type="submit" class="btn btn-primary" name="type"
+                                value="add"><?php echo BUTTON_COPY_LINKED_CATEGORIES_ADD; ?></button>
+                    </div>
+                    <div class="col-lg-2">
+                        <button type="submit" class="btn btn-danger" name="type"
+                                value="replace"><?php echo BUTTON_COPY_LINKED_CATEGORIES_REPLACE; ?></button>
+                    </div>
                 </div>
-                <div class="col-lg-2">
-                    <button type="submit" class="btn btn-primary" name="type" value="add"><?php echo BUTTON_COPY_LINKED_CATEGORIES_ADD; ?></button>
-                </div>
-                <div class="col-lg-2">
-                    <button type="submit" class="btn btn-danger" name="type" value="replace"><?php echo BUTTON_COPY_LINKED_CATEGORIES_REPLACE; ?></button>
-                </div>
-            </div>
-            <?php echo '</form>'; ?>
+                <?php echo '</form>';
+            }?>
         </div>
         <!-- Copy linked categories from one product to another eof -->
 
