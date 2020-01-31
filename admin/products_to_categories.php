@@ -85,8 +85,8 @@ if ($chk_products->RecordCount() < 1) {
 
 // Verify that product has a master_categories_id
 if ($products_filter > 0) {
-    $source_product_details = '<strong>(ID#' . $products_filter . ') "' . zen_get_products_name($products_filter,
-            (int)$_SESSION['languages_id']) . '" (' . zen_get_products_model($products_filter) . ')</strong>'; // Used for various messageStack
+    $source_product_details = '<strong>' . zen_get_products_model($products_filter) . ' - "' . zen_get_products_name($products_filter,
+            (int)$_SESSION['languages_id']) . '" (ID#' . $products_filter . ')</strong>'; // format used for various messageStack
     $chk_products = $db->Execute("SELECT master_categories_id
                               FROM " . TABLE_PRODUCTS . "
                               WHERE products_id = " . $products_filter . " LIMIT 1");
@@ -358,7 +358,7 @@ function ceonGetTargetCategoryProductList(int $parent_id = 0, $spacing = '', $ca
 
         if (!$sub_categories_result->EOF) {
             $category_product_tree_array = ceonGetTargetCategoryProductList(
-                $category['categories_id'], $spacing . $category['categories_name'] .
+                (int)$category['categories_id'], $spacing . $category['categories_name'] .
                 ' - ', $category_product_tree_array);
         }
 
@@ -547,7 +547,7 @@ if (zen_not_null($action)) {
         case 'remove_linked_products':
 
             $category_id_reference = (int)$_POST['category_id_reference'];
-            $category_id_target = (int)$_POST['category_id_target'];
+            $category_id_target = (int)$_POST['category_id_target_remove'];
 
             if (!zen_validate_categories($category_id_reference, $category_id_target)) {
                 zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
@@ -1179,11 +1179,11 @@ JS_BLOCK;
             </div>
             <?php
             if ($products_filter > 0) {
-                echo '<br>' . zen_draw_form('enable_copy_links_form', FILENAME_PRODUCTS_TO_CATEGORIES, zen_get_all_get_params(), 'post');
-                echo zen_draw_label(TEXT_LABEL_ENABLE_COPY_LINKS, 'enable_copy_links', 'class="control-label"');
-                echo zen_draw_checkbox_field('enable_copy_links', '', (!empty($_POST['enable_copy_links']) ? 1 : ''), '', 'onClick="this.form.submit();"');
+                echo '<br>' . zen_draw_form('enable_copy_links_dropdown_form', FILENAME_PRODUCTS_TO_CATEGORIES, zen_get_all_get_params(), 'post');
+                echo zen_draw_label(TEXT_LABEL_ENABLE_COPY_LINKS, 'enable_copy_links_dropdown', 'class="control-label"');
+                echo zen_draw_checkbox_field('enable_copy_links_dropdown', '', (!empty($_POST['enable_copy_links_dropdown']) ? 1 : ''), '', 'id="enable_copy_links_dropdown" onClick="this.form.submit();"');
                 echo '</form>';
-                if (!empty($_POST['enable_copy_links'])) {
+                if (!empty($_POST['enable_copy_links_dropdown'])) {
                     echo zen_draw_form('copy_linked_categories_to_another_product', FILENAME_PRODUCTS_TO_CATEGORIES,
                         'action=copy_linked_categories_to_another_product' . '&amp;products_filter=' . $products_filter . '&amp;current_category_id=' . $current_category_id, 'post',
                         'class="form-horizontal"');
@@ -1258,8 +1258,8 @@ JS_BLOCK;
                             'number'); ?>
                 </div>
                 <div class="col-lg-4">
-                    <?php echo zen_draw_label(TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_TO_LINKED, 'category_id_target',
-                            'class="control-label"') . zen_draw_input_field('category_id_target', '', 'id="category_id_target" class="form-control" step="1" min="1"', '',
+                    <?php echo zen_draw_label(TEXT_LABEL_REMOVE_ALL_PRODUCTS_TO_CATEGORY_TO_LINKED, 'category_id_target_remove',
+                            'class="control-label"') . zen_draw_input_field('category_id_target_remove', '', 'id="category_id_target_remove" class="form-control" step="1" min="1"', '',
                             'number'); ?>
                 </div>
                 <div class="col-lg-4">

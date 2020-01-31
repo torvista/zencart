@@ -36,7 +36,7 @@ define('TEXT_INFO_PRODUCTS_TO_CATEGORIES_LINKER_INTRO', 'This product is current
 define('TEXT_LABEL_CATEGORY_DISPLAY_ROOT', 'Display the SubCategories under:');
 define('TEXT_LABEL_SELECT_ALL_OR_NONE', 'Select All or None');
 define('ERROR_CATEGORY_ID_INVALID', 'Linked Category ID#%u invalid (not added).');
-define('SUCCESS_PRODUCT_LINKED_TO_CATEGORIES', 'Product links to categories Links updated for %s');
+define('SUCCESS_PRODUCT_LINKED_TO_CATEGORIES', 'Product links to multiple categories updated for %s');
 define('WARNING_PRODUCT_UNLINKED_FROM_CATEGORY', 'The product was unlinked from the previously selected category "%1$s" ID#%2$u, and so is now shown in it\'s master category.');
 
 // Global Tools
