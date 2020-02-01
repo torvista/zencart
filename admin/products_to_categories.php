@@ -3,7 +3,8 @@ declare(strict_types=1);
 //steve UNDER DEVELOPMENT
 //TODO
 //extract functions
-//texts for when master category is not in p2c table
+//function zen_draw_products_pull_down for product selection: change format from model (ID) Name (Price)
+//function zen_get_master_categories_pulldown: show full category path
 //DONE
 //merge in Conor code for displaying linked categories as full paths, alpha sorted, All/None selectable, filter by subcategories dropdown
 //merge in Conor code for Global Tool copy linked categories from one product to another
@@ -756,7 +757,7 @@ if ($products_filter > 0) {
                                  AND p.products_id = pd.products_id
                                  AND pd.language_id = " . (int)$_SESSION['languages_id'] . " LIMIT 1");
 
-    $products_list = $db->Execute("SELECT products_id, categories_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $products_filter);
+    $product_linked_categories = $db->Execute("SELECT products_id, categories_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " WHERE products_id = " . $products_filter);
 }
 
 // Build the list of categories within the target category
@@ -794,7 +795,7 @@ ceonGetCategoriesInfo((int)$target_category_id);
             margin: 0;
         }
 
-        .TargetCategoryCheckbox:checked + .labelForCheck { /*highlight linked category checkboxes*/
+        .TargetCategoryCheckbox:checked + span { /*highlight linked category checkboxes*/
             background: yellow;
         }
 
@@ -811,10 +812,6 @@ ceonGetCategoriesInfo((int)$target_category_id);
 
         #infoBox {
             border: 1px solid darkgrey;
-        }
-
-        #p2c-table td {
-            /*white-space: nowrap;*/
         }
 
         .dataTableHeadingRow {
@@ -862,7 +859,7 @@ ceonGetCategoriesInfo((int)$target_category_id);
             </div>
             <!-- prev-cat-next navigation eof-->
 
-            <!-- product select -->
+            <!-- product selection -->
             <?php if ($products_filter > 0) {//a product is selected ?>
                 <div>
                     <?php echo zen_draw_form('set_products_filter_id', FILENAME_PRODUCTS_TO_CATEGORIES, 'action=set_products_filter', 'post', 'class="form-horizontal"') ?>
@@ -882,9 +879,9 @@ ceonGetCategoriesInfo((int)$target_category_id);
                     <?php echo '</form>'; ?>
                 </div>
             <?php } ?>
-            <!-- product select eof -->
+            <!-- product selection eof -->
 
-            <!-- master category select -->
+            <!-- master category change -->
             <?php if ($products_filter > 0) {//a product is selected ?>
                 <div class="row">
                     <hr>
@@ -920,7 +917,7 @@ ceonGetCategoriesInfo((int)$target_category_id);
                     </div>
                 </div>
             <?php } ?>
-            <!-- master category select eof-->
+            <!-- master category change eof-->
         </div>
         <!-- LEFT column block (prev/next, product select, master category) eof -->
 
@@ -1034,67 +1031,36 @@ ceonGetCategoriesInfo((int)$target_category_id);
                     <noscript><input type="submit" value="<?php echo IMAGE_DISPLAY; ?>"></noscript>
                     <?php echo '</form>'; ?>
                 </div>
-                <div><?php
-                    // Can identify checkboxes for target categories by searching for their CSS class name
-                    //<<< is HEREDOC syntax = same as putting it in quotes, without having to escape quotes
-                    $js = <<< JS_BLOCK
-<script>
-function ceonSelectAllNoneTargetCategories()
-{
-  let select_all_or_none_el = document.getElementById('select_all_or_none');
-  
-  let elem = document.getElementsByTagName('input');
-  for (let i = 0; i < elem.length; i++) {
-    let classes = elem[i].className;
-    if (classes === 'TargetCategoryCheckbox') {
-      elem[i].checked = select_all_or_none_el.checked;
-    }
-  } 
-  all_target_categories_selected = false;
-}
-document.write('<input type="checkbox" name="select_all_or_none" id="select_all_or_none" {checked} onclick="javascript:ceonSelectAllNoneTargetCategories();" />');
-document.write('&nbsp;<label for="select_all_or_none">{title}<\/label>');
-</script>
-JS_BLOCK;
-
-                    $js = str_replace('{title}', addslashes(TEXT_LABEL_SELECT_ALL_OR_NONE), $js);
-
-                    // Are all target categories currently selected? If so, checkbox should be checked
-                    $all_target_categories_selected = true;
-                    $selected_categories_check = null;
+                <div>
+                    <?php
                     $selected_categories = [];
-                    foreach ($products_list as $product_list) {
-                        $selected_categories[] = $product_list['categories_id'];
+                    foreach ($product_linked_categories as $product_linked_category) {
+                        $selected_categories[] = (int)$product_linked_category['categories_id'];
                     }
+                    ?>
+                    <span id="toggleCheckbox"></span><?php // placeholder for toggle checkbox: no content when javascript disabled ?>
+                    <script title="toggle all checkboxes">
+                        document.getElementById('toggleCheckbox').innerHTML = '<p><label><input type="checkbox" onClick="toggle(this)" /> <?php echo TEXT_LABEL_SELECT_ALL_OR_NONE; ?></label></p>';
 
-                    if (count($selected_categories) === 0) {
-                        $all_target_categories_selected = false;
-                    } else {
-                        // Assign fake value to variable used by Zen Cart in a check later
-                        $selected_categories_check = 'yes, use it';
-                        $num_target_categories = count($categories_info);
-                        for ($cat_i = 0; $cat_i < $num_target_categories; $cat_i++) {
-                            if (!in_array($categories_info[$cat_i]['categories_id'], $selected_categories)) {
-                                $all_target_categories_selected = false;
-                                break;
+                        function toggle(source) {
+                            let checkboxes = document.getElementsByClassName('TargetCategoryCheckbox');
+                            for (let i = 0, n = checkboxes.length; i < n; i++) {
+                                checkboxes[i].checked = source.checked;
                             }
                         }
-                    }
-
-                    $js = str_replace('{checked}', ($all_target_categories_selected === true ? 'checked="checked"' : ''), $js);
-                    echo $js;
-                    ?></div>
-                <?php echo zen_draw_form('update', FILENAME_PRODUCTS_TO_CATEGORIES, 'action=update_product&amp;products_filter=' . $products_filter . '&amp;current_category_id=' . $current_category_id . '&amp;target_category_id=' . $target_category_id, 'post');
+                    </script>
+                </div>
+                <?php echo zen_draw_form('update', FILENAME_PRODUCTS_TO_CATEGORIES, 'action=update_product&products_filter=' . $products_filter . '&current_category_id=' . $current_category_id . '&target_category_id=' . $target_category_id, 'post');
                 zen_draw_hidden_field('current_master_categories_id', $product_to_copy->fields['master_categories_id']); ?>
-                <table class="table-bordered" id="p2c-table">
+                <table class="table-bordered">
                     <thead>
                     <?php $cnt_columns = 0; ?>
                     <tr class="dataTableHeadingRow">
                         <?php
-                        while ($cnt_columns != MAX_DISPLAY_PRODUCTS_TO_CATEGORIES_COLUMNS) {
+                        while ($cnt_columns !== (int)MAX_DISPLAY_PRODUCTS_TO_CATEGORIES_COLUMNS) {
                             $cnt_columns++;
                             ?>
-                            <th class="dataTableHeadingContent">&nbsp;&nbsp;<?php echo TEXT_CATEGORIES_NAME; ?></th>
+                            <th class="dataTableHeadingContent"><?php echo TEXT_CATEGORIES_NAME; ?></th>
                             <?php
                         }
                         ?>
@@ -1112,8 +1078,8 @@ JS_BLOCK;
                         $categories_list = new CeonCategoriesInfo();
                         $categories_list->fields = $categories_info[$cat_i];
                         $cnt_columns++;
-                        if (zen_not_null($selected_categories_check)) {
-                            $selected = in_array($categories_list->fields['categories_id'], $selected_categories);
+                        if (count($selected_categories) !== 0) {
+                            $selected = in_array((int)$categories_list->fields['categories_id'], $selected_categories, true);
                         } else {
                             $selected = false;
                         }
@@ -1130,8 +1096,8 @@ JS_BLOCK;
                         if ((int)$product_to_copy->fields['master_categories_id'] === (int)$categories_list->fields['categories_id']) {
                             echo '  <td class="dataTableContent" title="' . TEXT_VALID_CATEGORIES_ID . ': ' . $categories_list->fields['categories_id'] . '">' . zen_image(DIR_WS_IMAGES . 'icon_green_on.gif', TEXT_MASTER_CATEGORIES_ID . $product_to_copy->fields['master_categories_id']) . '&nbsp;' . htmlspecialchars($categories_list->fields['categories_name'], ENT_COMPAT, CHARSET) . '</td>' . "\n";
                         } else {
-                            echo '  <td class="dataTableContent">' . $zc_categories_checkbox . ' <label class="labelForCheck" title="' . TEXT_VALID_CATEGORIES_ID . ': ' . $categories_list->fields['categories_id'] . '">' . htmlspecialchars($categories_list->fields['categories_name'], ENT_COMPAT, CHARSET) . '</label></td>' . "\n";
-                        }
+                            echo '  <td class="dataTableContent"><label class="labelForCheck" title="' . TEXT_VALID_CATEGORIES_ID . ': ' . $categories_list->fields['categories_id'] . '">' . $zc_categories_checkbox . '<span>' . htmlspecialchars($categories_list->fields['categories_name'], ENT_COMPAT, CHARSET) . '</span></label></td>' . "\n";
+                        } // span is required inside label to allow css selection for highlighting when input checked
 
                         if ($cnt_columns === (int)MAX_DISPLAY_PRODUCTS_TO_CATEGORIES_COLUMNS ||
                             $cat_i === ($num_target_categories - 1)) {
