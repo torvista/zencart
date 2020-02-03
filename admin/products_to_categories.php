@@ -275,6 +275,7 @@ if (isset($_POST['target_category_id'])) {
 } else {
     $target_category_id = (int)P2C_TARGET_CATEGORY_DEFAULT; // TODO Admin switch
 }
+$_GET['target_category_id'] = $target_category_id;
 
 if (zen_not_null($action)) {
     switch ($action) {
@@ -543,7 +544,9 @@ if (zen_not_null($action)) {
 
         // Choose a product to display
         case 'set_products_filter':
-            zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $_GET['products_filter'] . '&current_category_id=' . $_POST['current_category_id']));
+            zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter .
+                '&current_category_id=' . $current_category_id .
+                '&target_category_id=' . $target_category_id));
             break;
 
         // Product to multiple category links: Set the root category from which to display the subcategories for selection
@@ -746,10 +749,12 @@ if ($target_subcategory_count > $max_input_vars){ //warning when in excess of PO
             <!-- product selection -->
             <?php if ($products_filter > 0) {//a product is selected ?>
                 <div>
-                    <?php echo zen_draw_form('set_products_filter_id', FILENAME_PRODUCTS_TO_CATEGORIES, 'action=set_products_filter', 'post', 'class="form-horizontal"') ?>
-                    <?php echo zen_draw_hidden_field('products_filter', $products_filter); ?>
-                    <?php echo zen_draw_hidden_field('current_category_id', $_GET['current_category_id']); ?>
                     <?php
+                    echo zen_draw_form('set_products_filter_id', FILENAME_PRODUCTS_TO_CATEGORIES, 'action=set_products_filter', 'post', 'class="form-horizontal"');
+                    echo zen_draw_hidden_field('current_category_id', $_GET['current_category_id']);
+                    echo zen_draw_hidden_field('products_filter', $products_filter);
+                    echo zen_draw_hidden_field('target_category_id', $_GET['target_category_id']);
+
                     $excluded_products = [];
                     //              $not_for_cart = $db->Execute("select p.products_id from " . TABLE_PRODUCTS . " p left join " . TABLE_PRODUCT_TYPES . " pt on p.products_type= pt.type_id where pt.allow_add_to_cart = 'N'");
                     //              while (!$not_for_cart->EOF) {
@@ -910,9 +915,10 @@ if ($target_subcategory_count > $max_input_vars){ //warning when in excess of PO
                     ?>
                     <label><?php echo TEXT_LABEL_CATEGORY_DISPLAY_ROOT . zen_draw_pull_down_menu('target_category_id', $category_select_values, $target_category_id, 'onChange="this.form.submit();"'); ?></label>
                     <?php
+                    echo zen_draw_hidden_field('action', 'set_target_category');
                     echo zen_draw_hidden_field('products_filter', $_GET['products_filter']);
                     echo zen_hide_session_id();
-                    echo zen_draw_hidden_field('action', 'set_target_category'); ?>
+                    ?>
                     <noscript><input type="submit" value="<?php echo IMAGE_DISPLAY; ?>"></noscript>
                     <?php echo '</form>'; ?>
                 </div>
