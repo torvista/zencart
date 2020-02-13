@@ -1,47 +1,49 @@
-<?php /** @noinspection ALL */
-declare(strict_types=1);
-//steve UNDER DEVELOPMENT
+<?php
+
+//steve, some of the changes
 //merge in Conor code for displaying linked categories as full paths, alpha sorted, All/None selectable, filter by subcategories dropdown
 //merge in Conor code for Global Tool copy linked categories from one product to another
 //reduced Conor functions
 //simplified layout and code structure: easier to see blocks when all collapsed
-//removed product price info etc. show after product select list: it was ugly/out of place and all duplicated in the infobox anyway
+//removed product price info etc. shown after product select list: it was ugly/out of place and all duplicated in the infobox anyway
 //added onsubmit for product select: no risk of unwanted action if clicked (noscript button provided)
 //removed onsubmit for master category change...too easy/risky to use by mistake
 //when unlinking categories: if product is unlinked from the displayed category, display redirects to show product in its master category
 //if invalid category (<=0) found in linking array, skip with error message instead of die
 //infoBox "Select another product by id": removed references to current product as irrelevant
 //language constants: multiple changes of texts for better explanation, changed structure and names of defines to be more logical
-//Product to Category links: removed multiple treatments of master category. Passed master category from form, do not delete from P2C table and so do not re-insert into P2C table.
+//Product to Category links: removed multiple treatments of master category. Passed master category from form, do not delete from P2C table and so no need to re-insert into P2C table.
 //Product to Category links: removed category ID column for better use of space, now shown on mouseover hover.
-//global tools, copy lined categories to another product: made dropdown disabled to stop unnecessary processing
+//global tools, Copy linked categories to another product: made dropdown disabled to stop unnecessary processing, todo with ajax one day
 //error message: if total of displayed possible categories to link to > php max_input_vars, as unable to process all.
 //SQL added LIMIT 1 where possible
 //added parameters to htmlspecialchars
 //replace whiles with foreach
 //review case: copy linked categories
 //simplified SQL for new_cat
-/**steve to stop phpStorm inspection warnings: to be removed
+//and more...test to death!
+
+/**steve to prevent phpStorm inspection warnings: to be removed
  * @var messageStack $messageStack
  * @var zcObserverLogEventListener $zco_notifier
  * @var products $zc_products
  * @method add_session
  */
+
+define('P2C_TARGET_CATEGORY_DEFAULT', '3');//todo move to admin: default target category base on page first load or when target category not set.
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @package admin
  * @copyright Copyright 2003-2019 Zen Cart Development Team
  * @copyright Portions Copyright 2003 osCommerce
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: torvista 2020 February 02 Modified in v1.5.7 $
+ * @version $Id: torvista 2020 February 13 Modified in v1.5.7 $
  */
 
 require('includes/application_top.php');
 
-define('P2C_TARGET_CATEGORY_DEFAULT', '3');//todo move to admin: default target category base on page first load/when not set.
-
-////////////////////////////////////////////////////////////////////////////////
-//new functions
+//functions
 /**
  * validate the user-entered categories from the Global Tools
  * @param int $ref_category_id
@@ -83,7 +85,7 @@ function zen_validate_categories(int $ref_category_id, int $target_category_id =
     return $categories_valid;
 }
 
-// the following two similar functions are a reduction from three similar functions...and can probably be further reduced/integrated with a revamped core function in the future
+// the following two similar functions are a reduction from three similar functions...and can probably be further reduced/integrated with a revamped core function in the future, so have not been reduced here
 /**
  * Updates a global variable, $categories_info, with a list of all the categories and subcategories
  * of the specified parent category. Code is organised so that the list is in ascending alphabetical
@@ -122,6 +124,7 @@ function zen_get_categories_info(int $parent_id, $category_path_string = '')
         }
     }
 }
+
 /**
  * Builds a list of all the subcategories / subcategories: products of a specified parent category.
  *
@@ -180,6 +183,7 @@ function zen_get_target_categories_products(int $parent_id = 0, $spacing = '', $
     }
     return $category_product_tree_array;
 }
+
 //eof new functions
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -236,33 +240,33 @@ $languages = zen_get_languages();
 $action = (isset($_GET['action']) ? $_GET['action'] : '');
 
 if ($action === 'new_cat') {//this form action is from products_previous_next_display.php when a new category is selected
-$new_product_query = $db->Execute("SELECT ptc.*
+    $new_product_query = $db->Execute("SELECT ptc.*
                                  FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " ptc
                                  LEFT JOIN " . TABLE_PRODUCTS_DESCRIPTION . " pd ON ptc.products_id = pd.products_id
                                  JOIN " . TABLE_PRODUCTS . " p ON ptc.products_id = p.products_id
-                                   AND pd.language_id = " . (int)$_SESSION['languages_id'] . "
+                                 AND pd.language_id = " . (int)$_SESSION['languages_id'] . "
                                  WHERE ptc.categories_id = " . $current_category_id . "
                                  ORDER BY p.products_model"); // Order By determines which product is pre-selected in the list when a new category is viewed
 
-$products_filter = (!$new_product_query->EOF) ? $new_product_query->fields['products_id'] : ''; // Empty if category has no products/has subcategories
-zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
+    $products_filter = (!$new_product_query->EOF) ? $new_product_query->fields['products_id'] : ''; // Empty if category has no products/has subcategories
+    zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
 }
 
 // set categories and products if not set
 if ($products_filter === '' && !empty($current_category_id)) { // when prev-next has been changed to a category without products/with subcategories
-$new_product_query = $db->Execute("SELECT ptc.products_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " ptc WHERE ptc.categories_id = " . $current_category_id . " LIMIT 1");
-$products_filter = (!$new_product_query->EOF) ? $new_product_query->fields['products_id'] : ''; // Empty if category has no products/has subcategories
-if ($products_filter !== '') {
-    $messageStack->add_session(WARNING_PRODUCTS_LINK_TO_CATEGORY_REMOVED, 'caution');
-    zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
-}
+    $new_product_query = $db->Execute("SELECT ptc.products_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " ptc WHERE ptc.categories_id = " . $current_category_id . " LIMIT 1");
+    $products_filter = (!$new_product_query->EOF) ? $new_product_query->fields['products_id'] : ''; // Empty if category has no products/has subcategories
+    if ($products_filter !== '') {
+        $messageStack->add_session(WARNING_PRODUCTS_LINK_TO_CATEGORY_REMOVED, 'caution');
+        zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id));
+    }
 
 } elseif ($products_filter === '' && empty($current_category_id)) {// on first entry into page from Admin menu
-$reset_categories_id = zen_get_category_tree('', '', '0', '', '', true);
-$current_category_id = (int)$reset_categories_id[0]['id'];
-$new_product_query = $db->Execute("SELECT ptc.products_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " ptc WHERE ptc.categories_id = " . $current_category_id . " LIMIT 1");
-$products_filter = (!$new_product_query->EOF) ? $new_product_query->fields['products_id'] : '';// Empty if category has no products/has subcategories
-$_GET['products_filter'] = $products_filter;
+    $reset_categories_id = zen_get_category_tree('', '', '0', '', '', true);
+    $current_category_id = (int)$reset_categories_id[0]['id'];
+    $new_product_query = $db->Execute("SELECT ptc.products_id FROM " . TABLE_PRODUCTS_TO_CATEGORIES . " ptc WHERE ptc.categories_id = " . $current_category_id . " LIMIT 1");
+    $products_filter = (!$new_product_query->EOF) ? $new_product_query->fields['products_id'] : '';// Empty if category has no products/has subcategories
+    $_GET['products_filter'] = $products_filter;
 }
 
 require(DIR_WS_MODULES . FILENAME_PREV_NEXT);
@@ -273,7 +277,7 @@ if (isset($_POST['target_category_id'])) {
 } elseif (isset($_GET['target_category_id'])) {
     $target_category_id = (int)$_GET['target_category_id'];
 } else {
-    $target_category_id = (int)P2C_TARGET_CATEGORY_DEFAULT; // TODO Admin switch
+    $target_category_id = (int)P2C_TARGET_CATEGORY_DEFAULT;
 }
 $_GET['target_category_id'] = $target_category_id;
 
@@ -648,7 +652,7 @@ $categories_info = [];
 zen_get_categories_info($target_category_id); // loads $categories_info with subcategories of chosen target category
 $target_subcategory_count = count($categories_info);
 $max_input_vars = @ini_get("max_input_vars");
-if ($target_subcategory_count > $max_input_vars){ //warning when in excess of POST limit
+if ($target_subcategory_count > $max_input_vars) { //warning when in excess of POST limit
     $messageStack->add(sprintf(WARNING_MAX_INPUT_VARS_LIMIT, $target_subcategory_count, $max_input_vars, 'caution'));
 }
 ?>
@@ -905,11 +909,13 @@ if ($target_subcategory_count > $max_input_vars){ //warning when in excess of PO
                     <?php } ?>
                 </div>
                 <div><?php // make dropdown to select the base target category, whose subcategories are subsequently displayed
-                     echo zen_draw_form('set_target_category_form', FILENAME_PRODUCTS_TO_CATEGORIES, 'action=set_target_category' . '&products_filter=' . $products_filter . '&current_category_id=' . $current_category_id, 'post');
+                    echo zen_draw_form('set_target_category_form', FILENAME_PRODUCTS_TO_CATEGORIES, 'action=set_target_category' . '&products_filter=' . $products_filter . '&current_category_id=' . $current_category_id, 'post');
 
-                    $select_all_categories_option = [[
-                        'id' => 0,
-                        'text' => TEXT_TOP]
+                    $select_all_categories_option = [
+                        [
+                            'id' => 0,
+                            'text' => TEXT_TOP
+                        ]
                     ];
                     $category_select_values = zen_get_target_categories_products(0, '&nbsp;&nbsp;&nbsp;', $select_all_categories_option);
                     ?>
@@ -932,6 +938,7 @@ if ($target_subcategory_count > $max_input_vars){ //warning when in excess of PO
                     <span id="toggleCheckbox"></span><?php // placeholder for toggle checkbox: no content when javascript disabled ?>
                     <script title="toggle all checkboxes">
                         document.getElementById('toggleCheckbox').innerHTML = '<p><label><input type="checkbox" onClick="toggle(this)"> <?php echo TEXT_LABEL_SELECT_ALL_OR_NONE; ?></label></p>';
+
                         function toggle(source) {
                             let checkboxes = document.getElementsByClassName('TargetCategoryCheckbox');
                             for (let i = 0, n = checkboxes.length; i < n; i++) {
@@ -965,7 +972,7 @@ if ($target_subcategory_count > $max_input_vars){ //warning when in excess of PO
 
                         // Create an object and populate it with the properties expected by the script (an array with
                         // the category's ID and name stored in a "fields" property)
-                         //$categories_list = new CeonCategoriesInfo();
+                        //$categories_list = new CeonCategoriesInfo();
                         $categories_list = new stdClass();
                         $categories_list->fields = $categories_info[$cat_i];
                         $cnt_columns++;
@@ -1012,7 +1019,7 @@ if ($target_subcategory_count > $max_input_vars){ //warning when in excess of PO
                 </table>
                 <div class="form-group text-center">
                     <button type="submit" class="btn btn-primary floatButton"
-                            title="<?php echo BUTTON_UPDATE_CATEGORY_LINKS . " - " . $product_to_copy->fields['products_name']; ?>"><?php echo BUTTON_UPDATE_CATEGORY_LINKS . '<br><span>' . $product_to_copy->fields['products_model'] . '<br>'. $product_to_copy->fields['products_name'] . '<br>(#'. $products_filter . ')'; ?></span></button>
+                            title="<?php echo BUTTON_UPDATE_CATEGORY_LINKS . " - " . $product_to_copy->fields['products_name']; ?>"><?php echo BUTTON_UPDATE_CATEGORY_LINKS . '<br><span>' . $product_to_copy->fields['products_model'] . '<br>' . $product_to_copy->fields['products_name'] . '<br>(#' . $products_filter . ')'; ?></span></button>
                 </div>
                 <?php echo '</form>'; ?>
             </div>
@@ -1030,7 +1037,7 @@ if ($target_subcategory_count > $max_input_vars){ //warning when in excess of PO
         <div class="row dataTableHeadingRow">
             <h3><?php echo TEXT_HEADING_COPY_LINKED_CATEGORIES; ?></h3>
             <div class="form-group-row">
-                <?php echo sprintf(TEXT_INFO_COPY_LINKED_CATEGORIES, ($products_filter > 0 ? ': <strong>' . $source_product_details . '</strong><br>': ' ')); ?>
+                <?php echo sprintf(TEXT_INFO_COPY_LINKED_CATEGORIES, ($products_filter > 0 ? ': <strong>' . $source_product_details . '</strong><br>' : ' ')); ?>
             </div>
             <?php
             if ($products_filter > 0) {
@@ -1154,11 +1161,9 @@ if ($target_subcategory_count > $max_input_vars){ //warning when in excess of PO
     <!-- body_text_eof //-->
 </div>
 <!-- body_eof //-->
-
 <!-- footer //-->
 <?php require(DIR_WS_INCLUDES . 'footer.php'); ?>
 <!-- footer_eof //-->
-
 </body>
 </html>
 <?php require(DIR_WS_INCLUDES . 'application_bottom.php'); ?>
