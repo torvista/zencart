@@ -22,15 +22,12 @@
 //review case: copy linked categories
 //simplified SQL for new_cat
 //and more...test to death!
-
 /**steve to prevent phpStorm inspection warnings: to be removed
  * @var messageStack $messageStack
  * @var zcObserverLogEventListener $zco_notifier
  * @var products $zc_products
  * @method add_session
  */
-
-define('P2C_TARGET_CATEGORY_DEFAULT', '3');//todo move to admin: default target category base on page first load or when target category not set.
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -42,6 +39,13 @@ define('P2C_TARGET_CATEGORY_DEFAULT', '3');//todo move to admin: default target 
  */
 
 require('includes/application_top.php');
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//todo move to zc_install. Set the target category drop-down to a set category on page first load/when no target category yet selected.
+if (!defined('P2C_TARGET_CATEGORY_DEFAULT')){
+    $db->Execute("INSERT INTO `configuration` (`configuration_title`, `configuration_key`, `configuration_value`, `configuration_description`, `configuration_group_id`, `sort_order`) VALUES ('Default Target Category (Products to Multiple Categories Manager)', 'P2C_TARGET_CATEGORY_DEFAULT', '', 'Default Target Category for Products to Multiple Categories Manager (can also be set on page)', '3', '70')");
+}
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 //functions
 /**
@@ -559,6 +563,15 @@ if (zen_not_null($action)) {
             zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id . '&target_category_id=' . $target_category_id));
             break;
 
+        // Product to multiple category links: Set the root category from which to display the subcategories for selection
+        case 'set_default_target_category':
+            $default_target_category_id = (int)$_POST['default_target_category_id'];
+            $db->Execute("UPDATE " . TABLE_CONFIGURATION . "
+                    SET configuration_value = " . $default_target_category_id . "
+                    WHERE configuration_key = 'P2C_TARGET_CATEGORY_DEFAULT'");
+            zen_redirect(zen_href_link(FILENAME_PRODUCTS_TO_CATEGORIES, 'products_filter=' . $products_filter . '&current_category_id=' . $current_category_id . '&target_category_id=' . $default_target_category_id));
+            break;
+
         // Product to multiple category links: Update the product to multiple-categories links
         case 'update_product':
             if (!isset($_POST['categories_add'])) {//no linked categories are selected
@@ -910,7 +923,6 @@ if ($target_subcategory_count > $max_input_vars) { //warning when in excess of P
                 </div>
                 <div><?php // make dropdown to select the base target category, whose subcategories are subsequently displayed
                     echo zen_draw_form('set_target_category_form', FILENAME_PRODUCTS_TO_CATEGORIES, 'action=set_target_category' . '&products_filter=' . $products_filter . '&current_category_id=' . $current_category_id, 'post');
-
                     $select_all_categories_option = [
                         [
                             'id' => 0,
@@ -921,12 +933,18 @@ if ($target_subcategory_count > $max_input_vars) { //warning when in excess of P
                     ?>
                     <label><?php echo TEXT_LABEL_CATEGORY_DISPLAY_ROOT . zen_draw_pull_down_menu('target_category_id', $category_select_values, $target_category_id, 'onChange="this.form.submit();"'); ?></label>
                     <?php
-                    echo zen_draw_hidden_field('action', 'set_target_category');
                     echo zen_draw_hidden_field('products_filter', $_GET['products_filter']);
                     echo zen_hide_session_id();
                     ?>
                     <noscript><input type="submit" value="<?php echo IMAGE_DISPLAY; ?>"></noscript>
                     <?php echo '</form>'; ?>
+                    <?php if ($target_category_id !== 0) { // show a Set Default button when a target category has been selected
+                        echo zen_draw_form('set_default_target_category_form', FILENAME_PRODUCTS_TO_CATEGORIES, 'action=set_default_target_category' . '&products_filter=' . $products_filter . '&current_category_id=' . $current_category_id, 'post'); ?>
+                        <button type="submit" class="btn btn-info" title="<?php echo BUTTON_SET_DEFAULT_TARGET_CATEGORY_TITLE; ?>"><?php echo BUTTON_SET_DEFAULT_TARGET_CATEGORY; ?></span></button>
+                        <?php
+                        echo zen_draw_hidden_field('default_target_category_id', $target_category_id);
+                        echo '</form>';
+                    } ?>
                 </div>
                 <div>
                     <?php

@@ -16,7 +16,7 @@ define('WARNING_PRODUCTS_LINK_TO_CATEGORY_REMOVED', 'WARNING: The previously-sel
 
 // Change Master Category
 define('TEXT_PRODUCTS_ID_INVALID', 'WARNING: Product ID#%u is invalid/does not exist in the database.');
-define('TEXT_INFO_MASTER_CATEGORY_CHANGE','A product has a Master Category ID (for pricing purposes) that can be considered as the category where the product actually <i>resides</i>. Additionally, a product can be <i>linked</i> (copied) to any number of other categories, where the price may be modified due to conditions on those linked categories.<br>The Master Category ID can be changed by using this Master Category dropdown, that only offers the <strong>currently linked</strong> categories as possible alternatives.<br>To set the Master Category ID to <strong>another</strong> category, first link it to the new category using the table below, and Update. Then use this dropdown to reassign the master category to the new category.');
+define('TEXT_INFO_MASTER_CATEGORY_CHANGE','A product has a Master Category ID (for pricing purposes) that can be considered as the category where the product actually <i>resides</i>. Additionally, a product can be <i>linked</i> (copied) to any number of other categories, where the price may be modified due to conditions on those linked categories.<br>The Master Category ID can be changed by using this Master Category dropdown, that only offers the <strong>currently linked</strong> categories as possible alternatives.<br>To set the Master Category ID to <strong>another</strong> category, first link it to a new category using the table below, and Update. Then use this dropdown to reassign the master category to that new category.');
 
 // Product InfoBox
 define('TEXT_INFOBOX_HEADING_SELECT_PRODUCT', 'Select Product by ID#');
@@ -31,8 +31,10 @@ define('BUTTON_CATEGORY_LISTING', 'Category Listing');
 // Link product to multiple categories
 define('TEXT_HEADING_LINKED_CATEGORIES', 'Linked Categories');
 define('TEXT_SET_MASTER_CATEGORIES_ID', '<strong>WARNING:</strong> a MASTER CATEGORIES ID must be assigned');
-define('TEXT_INFO_PRODUCTS_TO_CATEGORIES_LINKER_INTRO', '<p>This product is currently linked to the categories selected below (you may change the number of columns displayed <a target="_blank" href="configuration.php?&amp;gID=3">here</a>).<br>To add/remove links, select/deselect the checkboxes as required and then click on the ' . BUTTON_UPDATE_CATEGORY_LINKS . ' button.</p><p>Note that additional product/category actions are available using the Global Tools below.</p>');
+define('TEXT_INFO_PRODUCTS_TO_CATEGORIES_LINKER_INTRO', '<p>This product is currently linked to the categories selected below (you may change the number of columns displayed on <a target="_blank" href="configuration.php?&amp;gID=3">this page</a>).<br>To add/remove links, select/deselect the checkboxes as required and then click on the ' . BUTTON_UPDATE_CATEGORY_LINKS . ' button.</p><p>Note that additional product/category actions are available using the Global Tools below.</p>');
 define('TEXT_LABEL_CATEGORY_DISPLAY_ROOT', 'Display the SubCategories under:');
+define('BUTTON_SET_DEFAULT_TARGET_CATEGORY', 'Set as Default');
+define('BUTTON_SET_DEFAULT_TARGET_CATEGORY_TITLE', 'Set this selected Target Category as the Default to display');
 define('TEXT_LABEL_SELECT_ALL_OR_NONE', 'Select All or None');
 define('ERROR_CATEGORY_ID_INVALID', 'Linked Category ID#%u invalid (not added).');
 define('SUCCESS_PRODUCT_LINKED_TO_CATEGORIES', 'Product links to multiple categories updated for: %s');
