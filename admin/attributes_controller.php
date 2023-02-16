@@ -879,7 +879,7 @@ function zen_js_option_values_list($selectedName, $fieldName)
               <div class="form-group">
                 <div class="col-xs-offset-2 col-offset-sm-1 col-xs-7 col-sm-7"><?php echo TEXT_PRODUCT_TO_VIEW; ?></div>
               </div>
-              <div class="form-group">
+              <div class="form-group"><?php /*
                 <div class="col-xs-2 col-sm-1 col-md-1 col-lg-1 text-center">
                   <?php
                   $display_priced_by_attributes = zen_get_products_price_is_priced_by_attributes($_GET['products_filter']);
@@ -887,11 +887,13 @@ function zen_js_option_values_list($selectedName, $fieldName)
                   echo zen_get_products_display_price($_GET['products_filter']) . '<br><br>';
                   echo zen_get_products_quantity_min_units_display($_GET['products_filter'], $include_break = true);
                   ?>
-                </div>
-                <div class="col-xs-8 col-sm-8 col-md-6 col-lg-4 text-center"><?php echo zen_draw_pulldown_products('products_filter', 'class="form-control"', '', true, $_GET['products_filter'], true, true); ?></div>
-                <div class="col-xs-2 col-sm-3 col-md-5 col-lg-7">
+                </div> */ ?>
+                <div class="col-xs-10"><?php echo zen_draw_pulldown_products('products_filter', 'class="form-control" size="5" onchange="this.form.submit()"', '', true, $_GET['products_filter'], true, true); ?></div>
+                  <noscript>
+                <div class="col-xs-2 ">
                   <button type="submit" class="btn btn-primary"><?php echo IMAGE_DISPLAY; ?></button>
                 </div>
+                  </noscript>
               </div>
             <?php } // product dropdown ?>
             <?php echo '</form>'; ?>
