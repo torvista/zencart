@@ -10,7 +10,7 @@ if (file_exists(DIR_FS_CATALOG . 'includes/classes/dbencdata.php')) {
   require_once(DIR_FS_CATALOG . 'includes/classes/dbencdata.php');
 }
 
-$set = (isset($_GET['set']) ? $_GET['set'] : (isset($_POST['set']) ? $_POST['set'] : ''));
+$set = ($_GET['set'] ?? ($_POST['set'] ?? ''));
 
 $is_ssl_protected = (substr(HTTP_SERVER, 0, 5) == 'https') ? TRUE : FALSE;
 
@@ -51,13 +51,13 @@ if (!empty($set)) {
   }
 }
 
-$nModule = isset($_GET['module']) ? $_GET['module'] : null;
+$nModule = $_GET['module'] ?? null;
 $notificationType = $module_type . (($nModule) ? '-' . $nModule : '') ;
 
 $notifications = new AdminNotifications();
 $availableNotifications = $notifications->getNotifications($notificationType, $_SESSION['admin_id']);
 
-$action = (isset($_GET['action']) ? $_GET['action'] : '');
+$action = ($_GET['action'] ?? '');
 if (!empty($action)) {
   $admname = '{' . preg_replace('/[^\w]/', '*', zen_get_admin_name()) . '[' . (int)$_SESSION['admin_id'] . ']}';
   switch ($action) {
@@ -294,8 +294,8 @@ if (!empty($action)) {
               $heading[] = ['text' => '<h4>' . $mInfo->title . '</h4>'];
 
               $contents = ['form' => zen_draw_form('module_delete', FILENAME_MODULES, '&action=removeconfirm' . (isset($_GET['set']) ? '&set=' . $_GET['set'] : ''))];
-              $contents[] = ['text' => zen_draw_hidden_field('set', (isset($_GET['set']) ? $_GET['set'] : ''))];
-              $contents[] = ['text' => zen_draw_hidden_field('module', (isset($_GET['module']) ? $_GET['module'] : ''))];
+              $contents[] = ['text' => zen_draw_hidden_field('set', ($_GET['set'] ?? ''))];
+              $contents[] = ['text' => zen_draw_hidden_field('module', ($_GET['module'] ?? ''))];
               $contents[] = ['text' => '<h5>' . TEXT_DELETE_INTRO . '</h5>'];
 
               $contents[] = ['align' => 'text-center', 'text' => '<button type="submit" class="btn btn-danger" id="removeButton">' . IMAGE_MODULE_REMOVE . '</button>&nbsp;<a href="' . zen_href_link(FILENAME_MODULES, 'set=' . $set . ($_GET['module'] != '' ? '&module=' . $_GET['module'] : ''), 'SSL') . '" class="btn btn-default" role="button" id="cancelButton">' . IMAGE_CANCEL . '</a>'];
@@ -341,7 +341,7 @@ if (!empty($action)) {
                        $help_text = $module->help();
                        if (isset($help_text['link'])) {
                           $help_button = array('align' => 'text-center', 'text' => '<a href="' . $help_text['link'] . '" target="_blank" rel="noreferrer noopener">' . '<button type="submit" class="btn btn-primary " id="helpButton">' . IMAGE_MODULE_HELP. '</button></a>');
-                       } else if (isset($help_text['body'])) {
+                       } elseif (isset($help_text['body'])) {
                           $help_title = $module->title;
                           $help_button = array('align' => 'text-center', 'text' => '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#helpModal">' . IMAGE_MODULE_HELP . '</button>');
                        }
