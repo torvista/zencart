@@ -1,4 +1,6 @@
-<?php
+<?php //Pure CSS Mega Menu
+
+declare(strict_types=1);
 /**
  * Common Template - tpl_header.php
  *
@@ -241,4 +243,10 @@ echo '<div class="header Fixed"><a href="#menu" title="Menu"><i class="fa-solid 
 <?php   require($template->get_template_dir('tpl_ezpages_bar_header.php',DIR_WS_TEMPLATE, $current_page_base,'templates'). '/tpl_ezpages_bar_header.php'); ?>
 <?php } ?>
 <!--eof header ezpage links-->
+
+<!--bof-mega menu display-->
+<?php require($template->get_template_dir('tpl_mega_menu.php',DIR_WS_TEMPLATE, $current_page_base,'common'). '/tpl_mega_menu.php');?>
+<!--eof-mega menu display-->
+<div class="clearBoth"></div>
+
 </div>
