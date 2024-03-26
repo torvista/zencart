@@ -1,0 +1,55 @@
+#navCatTabsDropdown {
+    margin-top: -10px;
+    font-size: 15px;
+}
+
+#navCatTabsDropdown ul li {
+    position: relative;
+    display: inline;
+    margin-right: 20px;
+    line-height: 30px;
+}
+
+/* Highlight Top Category when in one of its subcategories */
+#navCatTabsDropdown ul li span.category-subs-selected {
+    font-weight: bold;
+}
+
+/* Top Categories */
+#navCatTabsDropdown ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+/* Dropdown/subcategories */
+#navCatTabsDropdown ul li ul li a {
+    color: black;
+}
+
+#navCatTabsDropdown ul li ul li a:hover {
+    text-decoration: underline;
+}
+
+#navCatTabsDropdown * li ul {
+    display: block;
+    left: 0;
+    visibility: hidden;
+    position: absolute;
+    padding: 0.1em;
+    white-space: nowrap;
+    z-index: 100;
+}
+
+#navCatTabsDropdown * ul li {
+    display: block;
+    text-align: left;
+    list-style-type: none;
+}
+
+#navCatTabsDropdown * li:hover ul {
+    visibility: visible;
+    background-color: #ffffff;
+    border: 1px outset;
+    white-space: nowrap;
+
+}
