@@ -3,7 +3,7 @@
  * @copyright Copyright 2003-2024 Zen Cart Development Team
  * @copyright Portions Copyright 2003 osCommerce
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: Scott C Wilson 2024 Feb 21 Modified in v2.0.0-beta1 $
+ * @version $Id: Scott C Wilson 2024 Apr 04 Modified in v2.0.0 $
  */
 require 'includes/application_top.php';
 
@@ -986,7 +986,7 @@ if ($action === 'edit' || $action === 'update') {
                 <div class="col-sm-9 col-md-6">
 <?php
     if ($processed === true) {
-        if ($cInfo->customers_newsletter === '1') {
+        if ($cInfo->customers_newsletter === 1) {
             echo ENTRY_NEWSLETTER_YES;
         } else {
             echo ENTRY_NEWSLETTER_NO;
@@ -996,7 +996,7 @@ if ($action === 'edit' || $action === 'update') {
         echo zen_draw_pull_down_menu(
             'customers_newsletter',
             $newsletter_array,
-            ($cInfo->customers_newsletter === '1') ? '1' : '0',
+            ($cInfo->customers_newsletter === 1) ? 1 : 0,
             'class="form-control" id="customers_newsletter"'
         );
     }
@@ -1670,7 +1670,7 @@ if ($action === 'edit' || $action === 'update') {
 <?php
         if (ACCOUNT_COMPANY === 'true') {
 ?>
-                                <td class="dataTableContent"><?php echo $customer['company']; ?></td>
+                                <td class="dataTableContent"><?php echo zen_output_string_protected($customer['company']); ?></td>
 <?php
         }
         if ($show_registration_ip_in_listing) {
@@ -1700,7 +1700,7 @@ if ($action === 'edit' || $action === 'update') {
         $additional_columns = [];
         $zco_notifier->notify(
             'NOTIFY_ADMIN_CUSTOMERS_LISTING_ELEMENT',
-            $result,
+            array_merge($result, $customer),
             $additional_columns,
             $customer
         );
@@ -2133,7 +2133,7 @@ if ($action === 'edit' || $action === 'update') {
                     'text' =>
                         '<br>' .
                         CUSTOMERS_REFERRAL . ' ' .
-                        $cInfo->customers_referral
+                        zen_output_string_protected($cInfo->customers_referral)
                 ];
             }
             break;
