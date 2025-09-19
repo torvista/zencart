@@ -1,0 +1,139 @@
+<?php //steve debug
+
+declare(strict_types=1);
+/**
+ * Scan additional image names from filesystem to database table
+ *
+ * Copyright 2003-2025 Zen Cart Development Team
+ * copyright ZenExpert 2025
+ */
+
+require 'includes/application_top.php';
+$debug = !empty($_POST['debug']);
+
+$action = $_POST['action'] ?? '';
+
+if (!empty($action) && $action === 'scan') {
+    $counter = $inserted = 0;
+
+    $products_query = $db->Execute("SELECT products_id, products_image FROM " . TABLE_PRODUCTS . " WHERE products_image IS NOT NULL ORDER BY products_id");
+
+   if ($debug) echo __LINE__ . ': found products=' . $products_query->RecordCount() . '<br>';
+
+    foreach ($products_query as $product) {
+        $products_id = (int)$product['products_id'];
+        $products_image = $product['products_image'];
+
+        $image_extension = substr($products_image, strrpos($products_image, '.'));
+        $image_base = str_replace($image_extension, '', $products_image);
+
+        // Detect subdirectory
+        $subdir = '';
+        if (str_contains($products_image, '/')) {
+            $subdir = substr($products_image, 0, strrpos($products_image, '/') + 1);
+        }
+        $image_dir = DIR_FS_CATALOG_IMAGES . $subdir;
+
+        // Get base filename without extension
+        $image_filename = basename($products_image, $image_extension);
+        $image_base = $image_filename;
+
+        // Use '_' suffix unless legacy mode
+        if (defined('ADDITIONAL_IMAGES_MODE') && ADDITIONAL_IMAGES_MODE !== 'legacy') {
+            $image_base .= '_';
+        }
+        if (str_ends_with($image_base, '__')) {
+            $image_base = substr($image_base, 0, -1);
+        }
+
+        $matches = [];
+        // Scan directory for matching files using glob iterator, which sorts alphabetically (so sort_order is retained)
+        $images = zen_get_files_in_directory($image_dir, $image_extension);
+        if ($debug) echo __LINE__ . ': #' . $products_id . ', main image="' . $products_image . '"<br>looking in "' . $image_dir . '"<br>';
+
+        foreach ($images as $file) {
+            $file = preg_replace('/^' . preg_quote($image_dir, '/') . '/i', '', $file);
+            if (!is_dir($image_dir . $file)) {
+                if (preg_match('/' . preg_quote($image_base, '/') . '/i', $file) === 1 && $file !== $products_image) {
+                    $matches[] = $file;
+                    if ($debug) echo __LINE__ . ': matched file found "' . $file . '"<br>';
+                }
+            }
+        }
+        if ($debug) echo __LINE__ . ': total matches=' . count($matches) . '<br>';
+
+        // Insert matches into products_additional_images table
+        foreach ($matches as $sort_order => $additional_image) {
+            // Check if already exists
+            $exists_query = $db->Execute(
+                "SELECT id FROM " . TABLE_PRODUCTS_ADDITIONAL_IMAGES . " WHERE products_id = " . $products_id . " AND additional_image = '" . zen_db_input($subdir . $additional_image) . "'"
+            );
+            if ($exists_query->EOF) {
+                $db->Execute(
+                    "INSERT INTO " . TABLE_PRODUCTS_ADDITIONAL_IMAGES . " (products_id, additional_image, sort_order)
+                    VALUES (" . $products_id . ", '" . zen_db_input($subdir . $additional_image) . "', " . (int)$sort_order . ")"
+                );
+                $inserted++;
+                if ($debug) echo __LINE__ . ': inserted new entry for "' . $additional_image . '"<br>';
+            } elseif ($debug) echo __LINE__ . ': match already exists in db for "' . $additional_image . '"<br>';
+        }
+
+        $counter++;
+        if ($debug) echo '-----------------<br>';
+    }
+    if ($inserted === 0) {
+        $messageStack->add_session(TEXT_ALL_SCANNED, 'info');
+        //$db->Execute("UPDATE " . TABLE_ADMIN_PAGES . " SET display_on_menu = 'N' WHERE page_key = 'toolsAidba'");
+    } else {
+        $messageStack->add_session($counter . TEXT_PRODUCTS_PROCESSED, 'success');
+        $messageStack->add_session(TEXT_SCAN_COMPLETED, 'success');
+    }
+    zen_redirect(zen_href_link(FILENAME_SCAN_FOR_ADDITIONAL_IMAGES));
+}
+
+?>
+<!doctype html>
+<html <?= HTML_PARAMS ?>>
+<head>
+    <?php require DIR_WS_INCLUDES . 'admin_html_head.php'; ?>
+</head>
+<body>
+<!-- header //-->
+<?php require DIR_WS_INCLUDES . 'header.php'; ?>
+<!-- header_eof //-->
+
+<!-- body //-->
+
+<div class="container-fluid">
+    <!-- body_text //-->
+
+    <h1><?= HEADING_TITLE ?></h1>
+    <?= TEXT_MAIN ?><br>
+    <br>
+    <h3><?= TEXT_STEP_1 ?></h3>
+    <p><?= TEXT_STEP_1_DETAIL ?></p>
+    <h3><?= TEXT_STEP_2 ?></h3>
+    <p><?= TEXT_STEP_2_DETAIL ?></p>
+    <h3><?= TEXT_STEP_3 ?></h3>
+    <p><?= TEXT_STEP_3_DETAIL ?></p>
+    <?php
+    echo zen_draw_form('scan_images_to_db', FILENAME_SCAN_FOR_ADDITIONAL_IMAGES, '', 'post', 'class="form-horizontal"');
+    echo zen_draw_hidden_field('action', 'scan');
+    ?>
+
+    <div class="buttonRow">
+        <button type="submit" class="btn btn-primary"><?= BUTTON_START_SCANNING ?></button>
+        <label>Debug? <?= zen_draw_checkbox_field('debug', '1') ?></label>
+    </div>
+
+    <?= '</form>' ?>
+
+    <!-- body_text_eof //-->
+</div>
+<!-- body_eof //-->
+<!-- footer //-->
+<?php require DIR_WS_INCLUDES . 'footer.php'; ?>
+<!-- footer_eof //-->
+</body>
+</html>
+<?php require DIR_WS_INCLUDES . 'application_bottom.php'; ?>
