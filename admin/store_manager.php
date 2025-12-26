@@ -172,6 +172,14 @@
       }
       zen_redirect(zen_href_link(FILENAME_STORE_MANAGER));
     break;
+    case ('truncate_sessions_table'):
+        $sql = 'TRUNCATE TABLE ' . TABLE_SESSIONS;
+        $db->Execute($sql);
+        $messageStack->add_session('table "' . TABLE_SESSIONS . '" truncated', 'success');
+        zen_record_admin_activity('Store Manager executed [truncate table sessions]', 'info');
+        $action='';
+        zen_redirect(zen_href_link(FILENAME_STORE_MANAGER));
+        break;
 
     } // eof: action
 
@@ -310,6 +318,39 @@ if ($processing_message != '') {
     </tr>
     <!-- eof: reset next order to new order number -->
 
+    <!-- bof: truncate sessions table -->
+    <?php
+    $table_size = 0;
+    $result = $db->Execute(
+        'SELECT table_name AS `table`, round(((data_length + index_length) / 1024 / 1024), 2) `MB` 
+                  FROM information_schema.TABLES 
+                  WHERE table_schema = "' . DB_DATABASE . '" 
+                  AND table_name = "' . TABLE_SESSIONS . '"');
+    if (!$result->EOF) {
+        $table_size = $result->fields['MB'];
+    }
+    $result = $db->Execute('SELECT min(expiry) as expiry_min, max(expiry) as expiry_max FROM ' . TABLE_SESSIONS);
+    ?>
+    <tr>
+        <td colspan="2"><table>
+                <tr>
+                    <td class="main"><strong><?= 'Truncate table "' . TABLE_SESSIONS . '"' ?></strong></td>
+                    <td class="main"><?= zen_draw_form('truncate_sessions_table', FILENAME_STORE_MANAGER, 'action=truncate_sessions_table', 'post'); ?>
+                        <input class="btn btn-default btn-sm" type="submit" value="<?= IMAGE_RESET ?>">
+                        <?= 'Table "' . TABLE_SESSIONS . '" current size = ' . $table_size . ' MB<br>'; ?>
+                        <?= '</form>' ?>
+                </tr>
+                <tr>
+                    <td colspan ="2">
+                        <?php
+                        echo 'Expiry Min=' . $result->fields['expiry_min'] . ': ' . date('Y-m-d H:i:s', (int)$result->fields['expiry_min']) . '<br>';
+                        echo 'Expiry Max=' . $result->fields['expiry_max'] . ': ' . date('Y-m-d H:i:s', (int)$result->fields['expiry_max']) . '<br>';
+                         ?>
+                    </td>
+                </tr>
+            </table></td>
+    </tr>
+    <!-- eof: truncate sessions table -->
 <!-- bof: database table-optimize -->
       <tr>
         <td colspan="2"><table>
