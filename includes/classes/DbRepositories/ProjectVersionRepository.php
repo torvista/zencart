@@ -10,6 +10,8 @@ use queryFactory;
 
 /**
  * Native queryFactory-backed accessor for TABLE_PROJECT_VERSION.
+ *
+ * @since ZC v2.2.0
  */
 class ProjectVersionRepository
 {
@@ -17,6 +19,9 @@ class ProjectVersionRepository
     {
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getByKey(string $projectVersionKey): ?array
     {
         $projectVersionKey = $this->db->prepare_input($projectVersionKey);

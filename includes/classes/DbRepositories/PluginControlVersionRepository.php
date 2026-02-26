@@ -8,12 +8,18 @@ namespace Zencart\DbRepositories;
 
 use queryFactory;
 
+/**
+ * @since ZC v2.2.0
+ */
 class PluginControlVersionRepository
 {
     public function __construct(private queryFactory $db)
     {
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getByUniqueKey(string $uniqueKey): array
     {
         $results = $this->db->Execute(
@@ -29,6 +35,9 @@ class PluginControlVersionRepository
         return $versions;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function setAllInfs(int $infs): void
     {
         $this->db->Execute(
@@ -36,6 +45,9 @@ class PluginControlVersionRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function upsertMany(array $rows): void
     {
         foreach ($rows as $row) {
@@ -54,6 +66,9 @@ class PluginControlVersionRepository
         }
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function deleteByInfs(int $infs): void
     {
         $this->db->Execute(

@@ -8,12 +8,18 @@ namespace Zencart\DbRepositories;
 
 use queryFactory;
 
+/**
+ * @since ZC v2.2.0
+ */
 class PluginControlRepository
 {
     public function __construct(private queryFactory $db)
     {
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getInstalledPlugins(int $status): array
     {
         $results = $this->db->Execute(
@@ -31,6 +37,9 @@ class PluginControlRepository
         return $pluginList;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getAll(): array
     {
         $results = $this->db->Execute(
@@ -46,6 +55,9 @@ class PluginControlRepository
         return $pluginList;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function setAllInfs(int $infs): void
     {
         $this->db->Execute(
@@ -53,6 +65,9 @@ class PluginControlRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function upsertMany(array $rows): void
     {
         foreach ($rows as $row) {
@@ -80,6 +95,9 @@ class PluginControlRepository
         }
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function deleteByInfs(int $infs): void
     {
         $this->db->Execute(
@@ -87,6 +105,9 @@ class PluginControlRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     protected function normalizeRow(array $row): array
     {
         $row['status'] = isset($row['status']) ? (int)$row['status'] : 0;

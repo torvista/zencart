@@ -14,7 +14,7 @@ class MigrationsRunner
     /**
      * @since ZC v2.0.0
      */
-    public function  run()
+    public function run(): void
     {
         $files = glob($this->migrationDir . '*_migration.php');
         foreach ($files as $migration)
@@ -26,6 +26,9 @@ class MigrationsRunner
         }
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     private static function camel(string $value): string
     {
         $value = preg_replace('/[^a-zA-Z0-9]+/', ' ', $value);

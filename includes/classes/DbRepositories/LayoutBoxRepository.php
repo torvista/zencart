@@ -8,12 +8,18 @@ namespace Zencart\DbRepositories;
 
 use queryFactory;
 
+/**
+ * @since ZC v2.2.0
+ */
 class LayoutBoxRepository
 {
     public function __construct(private queryFactory $db)
     {
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getActiveForLocation(int $location, string $template, int $limit = 100): array
     {
         return $this->fetchAll(
@@ -25,6 +31,9 @@ class LayoutBoxRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function findFirstByTemplateAndBoxName(string $template, string $boxName): ?array
     {
         $result = $this->db->Execute(
@@ -41,12 +50,18 @@ class LayoutBoxRepository
         return $result->fields;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function insert(array $insertValues): int
     {
         $this->db->perform(TABLE_LAYOUT_BOXES, $this->buildSqlDataArray($insertValues));
         return (int)$this->db->insert_ID();
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function updateByLayoutId(int $layoutId, array $values): void
     {
         $this->db->perform(
@@ -57,6 +72,9 @@ class LayoutBoxRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function deleteByLayoutIdAndName(int $layoutId, string $boxName): void
     {
         $this->db->Execute(
@@ -66,6 +84,9 @@ class LayoutBoxRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getByTemplate(string $template): array
     {
         return $this->fetchAll(
@@ -74,6 +95,9 @@ class LayoutBoxRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function updateByTemplateAndBoxName(string $template, string $boxName, array $values): void
     {
         $this->db->perform(
@@ -85,6 +109,9 @@ class LayoutBoxRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getNonHeaderFooterByTemplate(string $template): array
     {
         return $this->fetchAll(
@@ -97,6 +124,9 @@ class LayoutBoxRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getByTemplateAndNameLike(string $template, string $pattern): array
     {
         return $this->fetchAll(
@@ -107,6 +137,9 @@ class LayoutBoxRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function updatePluginDetailsByPrefix(string $pluginKey, string $version): void
     {
         $this->db->Execute(
@@ -116,6 +149,9 @@ class LayoutBoxRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function deleteByPluginDetailsPrefix(string $pluginKey): void
     {
         $this->db->Execute(
@@ -124,6 +160,9 @@ class LayoutBoxRepository
         );
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     protected function fetchAll(string $sql): array
     {
         $result = $this->db->Execute($sql);
@@ -134,6 +173,9 @@ class LayoutBoxRepository
         return $rows;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     protected function buildSqlDataArray(array $values): array
     {
         $sqlDataArray = [];

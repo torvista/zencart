@@ -10,6 +10,9 @@ use ArrayObject;
 use IteratorAggregate;
 use Traversable;
 
+/**
+ * @since ZC v2.2.0
+ */
 class NativePaginator implements IteratorAggregate
 {
     /** @var ArrayObject<int, ArrayObject> */
@@ -29,26 +32,41 @@ class NativePaginator implements IteratorAggregate
         $this->collection = new ArrayObject($wrapped);
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getPageName(): string
     {
         return $this->pageName;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function currentPage(): int
     {
         return $this->currentPage;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function perPage(): int
     {
         return $this->perPage;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function total(): int
     {
         return $this->total;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function firstItem(): int
     {
         if ($this->total === 0) {
@@ -57,6 +75,9 @@ class NativePaginator implements IteratorAggregate
         return (($this->currentPage - 1) * $this->perPage) + 1;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function lastItem(): int
     {
         if ($this->total === 0) {
@@ -65,11 +86,17 @@ class NativePaginator implements IteratorAggregate
         return min($this->currentPage * $this->perPage, $this->total);
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getCollection(): ArrayObject
     {
         return $this->collection;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getIterator(): Traversable
     {
         return $this->collection->getIterator();

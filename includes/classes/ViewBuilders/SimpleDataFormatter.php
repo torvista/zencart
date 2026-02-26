@@ -140,6 +140,9 @@ class SimpleDataFormatter
         return $this->resultSet;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     protected function getRowField($row, string $field, $default = null)
     {
         if (is_array($row)) {

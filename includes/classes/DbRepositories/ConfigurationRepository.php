@@ -10,6 +10,8 @@ use queryFactory;
 
 /**
  * Native queryFactory-backed accessor for TABLE_CONFIGURATION.
+ *
+ * @since ZC v2.2.0
  */
 class ConfigurationRepository
 {
@@ -20,6 +22,9 @@ class ConfigurationRepository
     {
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function loadConfigSettings(): void
     {
         $configs = $this->db->Execute(
@@ -48,6 +53,9 @@ class ConfigurationRepository
         }
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function getByKey(string $configurationKey): ?array
     {
         $configurationKey = $this->db->prepare_input($configurationKey);
@@ -63,6 +71,9 @@ class ConfigurationRepository
         return $result->fields;
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function updateValueByKey(string $configurationKey, string $configurationValue): int
     {
         $configurationKey = $this->db->prepare_input($configurationKey);

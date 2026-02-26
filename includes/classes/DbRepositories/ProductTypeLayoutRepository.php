@@ -10,6 +10,8 @@ use queryFactory;
 
 /**
  * Native queryFactory-backed accessor for TABLE_PRODUCT_TYPE_LAYOUT.
+ *
+ * @since ZC v2.2.0
  */
 class ProductTypeLayoutRepository
 {
@@ -17,6 +19,9 @@ class ProductTypeLayoutRepository
     {
     }
 
+    /**
+     * @since ZC v2.2.0
+     */
     public function loadConfigSettings(): void
     {
         $configs = $this->db->Execute(
