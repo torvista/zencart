@@ -45,9 +45,7 @@
         "classmap": ["not_for_release/testFramework"],
         "psr-4": {
             "Tests\\": "not_for_release/testFramework/",
-            "Seeders\\": "not_for_release/testFramework/Support/database/Seeders/",
-            "Migrations\\": "not_for_release/testFramework/Support/database/migrations/"
-
+            "Seeders\\": "not_for_release/testFramework/Support/database/Seeders/"
         }
     },
     "extra": {
