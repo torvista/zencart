@@ -94,13 +94,6 @@ We take security very seriously.
 
 If you have discovered a critical security bug in Zen Cart, please email security [at] zen-cart [.] com with the details of the problem and how to trigger it.  Issues will be responded to in a timely manner.
 
-
-Follow Us
----------
-For news and updates about Zen Cart&reg;, follow us on [Twitter](http://twitter.com/zencart) and [Facebook](http://facebook.com/zencart)
-
-Sign up for our free [Newsletter](http://eepurl.com/bafnNj)
-
 Subscribe to [Critical News Updates And Release Announcements](https://www.zen-cart.com/subscription.php?do=addsubscription&f=2)
 
 &nbsp;  
