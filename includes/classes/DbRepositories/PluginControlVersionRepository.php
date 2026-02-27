@@ -2,6 +2,7 @@
 /**
  * @copyright Copyright 2003-2026 Zen Cart Development Team
  * @license https://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
+ * @version $Id:  Modified in v2.2.0 $
  */
 
 namespace Zencart\DbRepositories;
@@ -13,8 +14,12 @@ use queryFactory;
  */
 class PluginControlVersionRepository
 {
-    public function __construct(private queryFactory $db)
+    public function __construct(private ?queryFactory $db = null)
     {
+        if ($this->db === null) {
+            global $db;
+            $this->db = $db;
+        }
     }
 
     /**
