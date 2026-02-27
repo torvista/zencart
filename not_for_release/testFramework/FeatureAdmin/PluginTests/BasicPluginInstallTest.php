@@ -30,6 +30,7 @@ class BasicPluginInstallTest extends zcFeatureTestCaseAdmin
         $response = $this->browser->getResponse();
         $this->assertStringContainsString('Test plugin for testing purposes', (string)$response->getContent() );
         $this->assertStringContainsString('Help on Zen Cart Documentation Site', (string)$response->getContent() );
+        $this->assertStringContainsString('Test plugin footer-injection for observer testing', (string)$response->getContent() );
     }
 
     public function testDisableEnablePlugin(): void
