@@ -14,6 +14,9 @@
 
 namespace App\Models;
 
-// Alias the repository implementation into the legacy App\Models namespace.
-// This will trigger the autoloader for the target class when the alias is created.
+/**
+ * Alias the repository implementation into the legacy App\Models namespace.
+ *
+ * @deprecated Use \Zencart\DbRepositories\PluginControlRepository instead.
+ */
 class_alias(\Zencart\DbRepositories\PluginControlRepository::class, __NAMESPACE__ . '\\PluginControl');

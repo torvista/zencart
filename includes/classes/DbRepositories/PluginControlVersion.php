@@ -14,5 +14,10 @@
 
 namespace App\Models;
 
-// Alias the repository implementation into the legacy App\Models namespace.
+/**
+ * Alias the repository implementation into the legacy App\Models namespace.
+ *
+ * @deprecated Use \Zencart\DbRepositories\PluginControlRepository instead.
+ */
+
 class_alias(\Zencart\DbRepositories\PluginControlVersionRepository::class, __NAMESPACE__ . '\\PluginControlVersion');
