@@ -154,6 +154,12 @@ UPDATE configuration SET configuration_description = 'Do you want to display the
 UPDATE configuration SET configuration_description = 'Do you want to display the Product Quantity?<br>0 - Not displayed.<br>n - Displayed, with the number n defining the display order relative to similar options on the product listing page.' WHERE configuration_key = 'PRODUCT_LIST_QUANTITY' LIMIT 1;
 UPDATE configuration SET configuration_description = 'Do you want to display the Product Weight?<br>0 - Not displayed.<br>n - Displayed, with the number n defining the display order relative to similar options on the product listing page.' WHERE configuration_key = 'PRODUCT_LIST_WEIGHT' LIMIT 1;
 
+#PROGRESS_FEEDBACK:!TEXT=Setting default order-status colors...
+UPDATE orders_status SET orders_status_color_code = '#f0ad4e' WHERE orders_status_id = 1 AND orders_status_color_code IS NULL;
+UPDATE orders_status SET orders_status_color_code = '#5bc0de' WHERE orders_status_id = 2 AND orders_status_color_code IS NULL;
+UPDATE orders_status SET orders_status_color_code = '#5cb85c' WHERE orders_status_id = 3 AND orders_status_color_code IS NULL;
+UPDATE orders_status SET orders_status_color_code = '#ff00ff' WHERE orders_status_id = 4 AND orders_status_color_code IS NULL;
+
 
 #PROGRESS_FEEDBACK:!TEXT=Finalizing ... Done!
 

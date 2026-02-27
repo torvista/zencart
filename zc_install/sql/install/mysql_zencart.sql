@@ -3307,10 +3307,10 @@ INSERT INTO layout_boxes (layout_template, layout_box_name, layout_box_status, l
 INSERT INTO layout_boxes (layout_template, layout_box_name, layout_box_status, layout_box_location, layout_box_sort_order, layout_box_sort_order_single, layout_box_status_single) VALUES ('responsive_classic', 'whats_new.php', 1, 0, 20, 0, 0);
 INSERT INTO layout_boxes (layout_template, layout_box_name, layout_box_status, layout_box_location, layout_box_sort_order, layout_box_sort_order_single, layout_box_status_single) VALUES ('responsive_classic', 'whos_online.php', 1, 1, 200, 200, 1);
 
-INSERT INTO orders_status (orders_status_id, language_id, orders_status_name, sort_order) VALUES ( '1', '1', 'Pending', 0);
-INSERT INTO orders_status (orders_status_id, language_id, orders_status_name, sort_order) VALUES ( '2', '1', 'Processing', 10);
-INSERT INTO orders_status (orders_status_id, language_id, orders_status_name, sort_order) VALUES ( '3', '1', 'Delivered', 20);
-INSERT INTO orders_status (orders_status_id, language_id, orders_status_name, sort_order) VALUES ( '4', '1', 'Update', 30);
+INSERT INTO orders_status (orders_status_id, language_id, orders_status_name, sort_order, orders_status_color_code) VALUES ( '1', '1', 'Pending', 0, '#f0ad4e');
+INSERT INTO orders_status (orders_status_id, language_id, orders_status_name, sort_order, orders_status_color_code) VALUES ( '2', '1', 'Processing', 10, '#5bc0de');
+INSERT INTO orders_status (orders_status_id, language_id, orders_status_name, sort_order, orders_status_color_code) VALUES ( '3', '1', 'Delivered', 20, '#5cb85c');
+INSERT INTO orders_status (orders_status_id, language_id, orders_status_name, sort_order, orders_status_color_code) VALUES ( '4', '1', 'Update', 30, '#ff00ff');
 
 INSERT INTO product_types VALUES (1, 'Product - General', 'product', '1', 'Y', '', now(), now());
 INSERT INTO product_types VALUES (2, 'Product - Music', 'product_music', '1', 'Y', '', now(), now());
