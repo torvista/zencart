@@ -388,6 +388,7 @@ $define = [
     'SUCCESS_CATEGORY_MOVED' => 'Success! Category has successfully been moved ...',
     'SUCCESS_FILE_SAVED_SUCCESSFULLY' => 'Success: File upload saved successfully %s',
     'SUCCESS_PRODUCT_UPDATE_SORT' => 'Successful Attribute Sort Order Update for ID# ',
+    'SUCCESS_USER_DETAILS_UPDATED' => 'User details updated.',
     'TABLE_ATTRIBUTES_QTY_PRICE_PRICE' => 'PRICE',
     'TABLE_ATTRIBUTES_QTY_PRICE_QTY' => 'QTY',
     'TABLE_HEADING_ACTION' => 'Action',
