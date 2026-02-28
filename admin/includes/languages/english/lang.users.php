@@ -25,7 +25,6 @@ $define = [
     'ERROR_ADMIN_NAME_TOO_SHORT' => 'Admin user names must have at least %s characters.',
     'ERROR_PASSWORD_TOO_SHORT' => 'Passwords must contain at least %s characters.',
     'SUCCESS_NEW_USER_ADDED' => 'New Admin User "%s" created.',
-    'SUCCESS_USER_DETAILS_UPDATED' => 'User details updated.',
     'SUCCESS_PASSWORD_UPDATED' => 'Password updated.',
     'ERROR_ADMIN_INVALID_EMAIL_ADDRESS' => 'The email address you provided seems to be invalid.',
     'ERROR_ADMIN_INVALID_CHARS_IN_USERNAME' => 'The admin username you entered contains invalid characters.',
