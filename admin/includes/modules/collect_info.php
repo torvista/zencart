@@ -125,8 +125,8 @@ if (zen_get_categories_status($current_category_id) == 0 && $pInfo->products_sta
         (isset($_GET['pID']) ? '&pID=' . $_GET['pID'] : '') .
         '&action=new_product_preview' .
         (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') .
-        ((isset($_GET['search']) && !empty($_GET['search'])) ? '&search=' . zen_preserve_search_quotes($_GET['search']) : '') .
-        ((isset($_POST['search']) && !empty($_POST['search']) && empty($_GET['search'])) ? '&search=' . zen_preserve_search_quotes($_POST['search']) : ''),
+        (!empty($_GET['search']) ? '&search=' . zen_preserve_search_quotes($_GET['search']) : '') .
+        ((!empty($_POST['search']) && empty($_GET['search'])) ? '&search=' . zen_preserve_search_quotes($_POST['search']) : ''),
         'post',
         'enctype="multipart/form-data" class="form-horizontal"'
     );
@@ -143,8 +143,8 @@ if (zen_get_categories_status($current_category_id) == 0 && $pInfo->products_sta
             'cPath=' . $current_category_id .
             (isset($_GET['pID']) ? '&pID=' . $_GET['pID'] : '') .
             (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') .
-            ((isset($_GET['search']) && !empty($_GET['search'])) ? '&search=' . zen_preserve_search_quotes($_GET['search']) : '') .
-            ((isset($_POST['search']) && !empty($_POST['search']) && empty($_GET['search'])) ? '&search=' . zen_preserve_search_quotes($_POST['search']) : '')) ?>" class="btn btn-default" role="button"><?= IMAGE_CANCEL ?></a>
+            ((!empty($_GET['search'])) ? '&search=' . zen_preserve_search_quotes($_GET['search']) : '') .
+            ((!empty($_POST['search']) && empty($_GET['search'])) ? '&search=' . zen_preserve_search_quotes($_POST['search']) : '')) ?>" class="btn btn-default" role="button"><?= IMAGE_CANCEL ?></a>
     </div>
   <div class="form-group">
       <?php
@@ -754,8 +754,8 @@ if (zen_get_categories_status($current_category_id) == 0 && $pInfo->products_sta
     </div>
     <?php
     echo zen_draw_hidden_field('products_date_added', (zen_not_null($pInfo->products_date_added) ? $pInfo->products_date_added : date('Y-m-d')));
-    echo ((isset($_GET['search']) && !empty($_GET['search'])) ? zen_draw_hidden_field('search', zen_preserve_search_quotes($_GET['search'])) : '');
-    echo ((isset($_POST['search']) && !empty($_POST['search']) && empty($_GET['search'])) ? zen_draw_hidden_field('search', zen_preserve_search_quotes($_POST['search'])) : '');
+    echo (!empty($_GET['search']) ? zen_draw_hidden_field('search', zen_preserve_search_quotes($_GET['search'])) : '');
+    echo ((!empty($_POST['search']) && empty($_GET['search'])) ? zen_draw_hidden_field('search', zen_preserve_search_quotes($_POST['search'])) : '');
     ?>
   </div>
   <?= '</form>' ?>
