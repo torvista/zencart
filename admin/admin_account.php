@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @copyright Copyright 2003-2024 Zen Cart Development Team
  * @copyright Portions Copyright 2003 osCommerce
@@ -73,74 +75,89 @@ $userDetails = $userList[0];
 $mfa_status_of_store = zen_config('MFA_ENABLED') === 'True';
 ?>
 <!doctype html>
-<html <?php echo HTML_PARAMS; ?>>
+<html <?= HTML_PARAMS ?>>
 <head>
     <?php require DIR_WS_INCLUDES . 'admin_html_head.php'; ?>
     <link rel="stylesheet" href="includes/css/admin_access.css">
 </head>
 <body>
 <!-- header //-->
-<?php require(DIR_WS_INCLUDES . 'header.php'); ?>
+<?php require DIR_WS_INCLUDES . 'header.php'; ?>
 <!-- header_eof //-->
 
 <!-- body //-->
 <div class="container-fluid" id="pageWrapper">
 
-    <h1><?php echo HEADING_TITLE ?></h1>
+    <h1><?= HEADING_TITLE ?></h1>
     <?php
-        echo zen_draw_form('users', FILENAME_ADMIN_ACCOUNT);
-        if (isset($formAction)) {
-            echo zen_draw_hidden_field('action', $formAction);
-        }
+    echo zen_draw_form('users', FILENAME_ADMIN_ACCOUNT);
+    if (isset($formAction)) {
+        echo zen_draw_hidden_field('action', $formAction);
+    }
     ?>
     <table class="table">
         <thead>
         <tr class="headingRow">
-            <th class="name"><?php echo TEXT_ADMIN_NAME ?></th>
-            <th class="email"><?php echo TEXT_EMAIL ?></th>
-            <?php if ($action == 'password') { ?>
-                <th class="password"><?php echo TEXT_PASSWORD ?></th>
-                <th class="password"><?php echo TEXT_CONFIRM_PASSWORD ?></th>
-            <?php } else if ($action !== 'edit') { ?>
-            <th class="changed"><?php echo TEXT_PASS_LAST_CHANGED ?></th>
+            <th class="name"><?= TEXT_ADMIN_NAME ?></th>
+            <th class="email"><?= TEXT_EMAIL ?></th>
             <?php
+            if ($action == 'password') { ?>
+                <th class="password"><?= TEXT_PASSWORD ?></th>
+                <th class="password"><?= TEXT_CONFIRM_PASSWORD ?></th>
+                <?php
+            } elseif ($action !== 'edit') { ?>
+                <th class="changed"><?= TEXT_PASS_LAST_CHANGED ?></th>
+                <?php
                 if ($mfa_status_of_store) {
-            ?>
-            <th class="mfa_status"><?php echo TEXT_MFA_STATUS ?></th>
-                <?php } ?>
-            <?php } ?>
+                    ?>
+                    <th class="mfa_status"><?= TEXT_MFA_STATUS ?></th>
+                    <?php
+                } ?>
+                <?php
+            } ?>
             <th class="actions">&nbsp;</th>
         </tr>
         </thead>
         <tbody>
-            <tr>
-            <td class="name"><?php echo $userDetails['name'] ?><?php echo zen_draw_hidden_field('admin_name', $userDetails['name']); ?></td>
-                <?php if ($action == 'edit' && $user == $userDetails['id']) { ?>
-                    <td class="email"><?php echo zen_draw_input_field('email', $userDetails['email'], 'class="form-control"', false, 'email') ?></td>
-                <?php } else { ?>
-                    <td class="email"><?php echo $userDetails['email'] ?></td>
-                <?php } ?>
-                <?php if ($action == 'password' && $user == $userDetails['id']) { ?>
-                    <td class="password"><?php echo zen_draw_input_field('password', '', 'class="form-control" required', false, 'password', true) ?></td>
-                    <td class="confirm"><?php echo zen_draw_input_field('confirm', '', 'class="form-control" required', false, 'password', true) ?></td>
-                <?php } elseif ($action == 'add' || $action == 'password') { ?>
-                    <td class="password">&nbsp;</td>
-                    <td class="confirm">&nbsp;</td>
-                <?php } ?>
-                <?php if ($action == 'edit' || $action == 'password') { ?>
-                <?php if ($user == $userDetails['id']) { ?>
-                        <td class="actions">
-                            <button type="submit" class="btn btn-primary"><?php echo IMAGE_UPDATE; ?></button>
-                            <a href="<?php echo zen_href_link(FILENAME_ADMIN_ACCOUNT) ?>" class="btn btn-default" role="button"><?php echo IMAGE_CANCEL; ?></a>
-                        </td>
-                    <?php } else { ?>
-                        <td class="actions">&nbsp;</td>
-                    <?php } ?>
-                <?php } else { ?>
-                <td class="changed"><?php echo zen_date_short($userDetails['pwd_last_change_date']); ?></td>
+        <tr>
+            <td class="name"><?= $userDetails['name'] ?><?= zen_draw_hidden_field('admin_name', $userDetails['name']) ?></td>
+            <?php
+            if ($action == 'edit' && $user == $userDetails['id']) { ?>
+                <td class="email"><?= zen_draw_input_field('email', $userDetails['email'], 'class="form-control"', false, 'email') ?></td>
                 <?php
-                $user = zen_read_user($userDetails['name']);
-                if ($mfa_status_of_store) {
+            } else { ?>
+                <td class="email"><?= $userDetails['email'] ?></td>
+                <?php
+            } ?>
+            <?php
+            if ($action == 'password' && $user == $userDetails['id']) { ?>
+                <td class="password"><?= zen_draw_input_field('password', '', 'class="form-control" required', false, 'password', true) ?></td>
+                <td class="confirm"><?= zen_draw_input_field('confirm', '', 'class="form-control" required', false, 'password', true) ?></td>
+                <?php
+            } elseif ($action == 'add' || $action == 'password') { ?>
+                <td class="password">&nbsp;</td>
+                <td class="confirm">&nbsp;</td>
+                <?php
+            } ?>
+            <?php
+            if ($action == 'edit' || $action == 'password') { ?>
+                <?php
+                if ($user == $userDetails['id']) { ?>
+                    <td class="actions">
+                        <button type="submit" class="btn btn-primary"><?= IMAGE_UPDATE ?></button>
+                        <a href="<?= zen_href_link(FILENAME_ADMIN_ACCOUNT) ?>" class="btn btn-default" role="button"><?= IMAGE_CANCEL ?></a>
+                    </td>
+                    <?php
+                } else { ?>
+                    <td class="actions">&nbsp;</td>
+                    <?php
+                } ?>
+                <?php
+            } else { ?>
+            <td class="changed"><?= zen_date_short($userDetails['pwd_last_change_date']) ?></td>
+            <?php
+            $user = zen_read_user($userDetails['name']);
+            if ($mfa_status_of_store) {
                 $user_mfa_data = json_decode($user['mfa'] ?? '', true, 2);
                 $mfa_status = !empty($user_mfa_data['generated_at']) && !empty($user_mfa_data['secret']);
                 $mfa_date = $mfa_status ? (new DateTime)->setTimestamp($user_mfa_data['generated_at'])->setTimezone((new DateTime)->getTimezone())->format('Y-m-d H:i:s') : '';
@@ -160,27 +177,31 @@ $mfa_status_of_store = zen_config('MFA_ENABLED') === 'True';
                 ?>
                 <td class="mfa_status">
                     <?= $mfa_status_msg ?>
-                    <?php if (!$mfa_status && !$mfa_exempt && !$mfa_email) { ?>
-                    <a href="<?php echo zen_href_link(FILENAME_MFA, 'action=setup') ?>" class="btn btn-sm btn-default"><?php echo TEXT_BUTTON_SET_UP; ?></a>
-                    <?php } ?>
+                    <?php
+                    if (!$mfa_status && !$mfa_exempt && !$mfa_email) { ?>
+                        <a href="<?= zen_href_link(FILENAME_MFA, 'action=setup') ?>" class="btn btn-sm btn-default"><?= TEXT_BUTTON_SET_UP ?></a>
+                        <?php
+                    } ?>
                 </td>
-                <?php } ?>
-                <td class="actions">
-                    <a href="<?php echo zen_href_link(FILENAME_ADMIN_ACCOUNT, 'action=edit'); ?>" class="btn btn-primary" role="button"><?php echo IMAGE_EDIT; ?></a>
-                    <a href="<?php echo zen_href_link(FILENAME_ADMIN_ACCOUNT, 'action=password') ?>" class="btn btn-primary"><?php echo IMAGE_RESET_PWD; ?></a>
-                </td>
-            </tr>
-        <?php } ?>
+                <?php
+            } ?>
+            <td class="actions">
+                <a href="<?= zen_href_link(FILENAME_ADMIN_ACCOUNT, 'action=edit') ?>" class="btn btn-primary" role="button"><?= IMAGE_EDIT ?></a>
+                <a href="<?= zen_href_link(FILENAME_ADMIN_ACCOUNT, 'action=password') ?>" class="btn btn-primary"><?= IMAGE_RESET_PWD ?></a>
+            </td>
+        </tr>
+        <?php
+        } ?>
         </tbody>
     </table>
-    <?php echo '</form>'; ?>
+    <?= '</form>' ?>
 </div>
 <!-- body_eof //-->
 
 <!-- footer //-->
-<?php require(DIR_WS_INCLUDES . 'footer.php'); ?>
+<?php require DIR_WS_INCLUDES . 'footer.php'; ?>
 <!-- footer_eof //-->
 
 </body>
 </html>
-<?php require(DIR_WS_INCLUDES . 'application_bottom.php'); ?>
+<?php require DIR_WS_INCLUDES . 'application_bottom.php'; ?>
